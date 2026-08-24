@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step-Change Savings Calculator</title>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --secondary: #10b981;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: var(--card);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-top: 0;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+    .unit-toggle {
+      display: flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .unit-toggle button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .unit-toggle button.active {
+      background: var(--card);
+      color: var(--primary);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .input-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 15px;
+        background: #fafafa;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        margin-bottom: 15px;
+    }
+    .section-label {
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+    .phase-1 { border-left: 4px solid var(--primary); }
+    .phase-2 { border-left: 4px solid var(--secondary); }
+
+    .input-group {
+      margin-bottom: 6px;
+    }
+    .input-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .input-with-val {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    input[type="number"] {
+      width: 75px;
+      padding: 4px 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-align: right;
+      background: #ffffff;
+      color: var(--text);
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    #deposit1-slider { accent-color: var(--primary); }
+    #debt-slider { accent-color: var(--secondary); }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: #f8fafc;
+      padding: 12px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    canvas {
+      width: 100%;
+      height: 200px;
+      background: #fafafa;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Step-Change Savings Calculator</h1>
+    <div class="subtitle">Track savings growth before and after debt payoff.</div>
+    
+    <div class="unit-toggle">
+      <button id="btn-days" onclick="setUnit('days')">Days</button>
+      <button id="btn-weeks" onclick="setUnit('weeks')">Weeks</button>
+      <button id="btn-months" class="active" onclick="setUnit('months')">Months</button>
+    </div>
+
+    <!-- Phase 1 Inputs -->
+    <div class="input-section phase-1">
+        <div class="section-label" style="color: var(--primary);">Phase 1: Current Savings</div>
+        <div class="input-group">
+          <div class="input-label">
+            <span>Regular Savings Rate</span>
+            <div class="input-with-val">$<input type="number" id="deposit1-num" min="0" max="10000" step="1" value="500" oninput="syncInput('deposit1')"></div>
+          </div>
+          <input type="range" id="deposit1-slider" min="0" max="2000" step="1" value="500" oninput="syncSlider('deposit1')">
+        </div>
+        <div class="input-group">
+            <div class="input-label">
+              <span>Phase 1 Timeline</span>
+              <div class="input-with-val"><input type="number" id="phase1-dur-num" min="1" max="24" step="1" value="2" oninput="syncInput('phase1-dur')"><span id="p1-unit-label">Months</span></div>
+            </div>
+            <input type="range" id="phase1-dur-slider" min="1" max="24" step="1" value="2" oninput="syncSlider('phase1-dur')">
+        </div>
+    </div>
+
+    <!-- Phase 2 Inputs -->
+    <div class="input-section phase-2">
+        <div class="section-label" style="color: var(--secondary);">Phase 2: After Debt Payoff (Feb)</div>
+        <div class="input-group">
+            <div class="input-label">
+              <span>Freed-up Debt Payment (Added)</span>
+              <div class="input-with-val">+$<input type="number" id="debt-num" min="0" max="10000" step="1" value="300" oninput="syncInput('debt')"></div>
+            </div>
+            <input type="range" id="debt-slider" min="0" max="2000" step="1" value="300" oninput="syncSlider('debt')">
+        </div>
+        <div class="input-group">
+            <div class="input-label">
+              <span>New Total Savings Rate</span>
+              <div class="input-with-val" style="font-weight: 700; color: var(--secondary);">$<span id="deposit2-display">800</span></div>
+            </div>
+            <input type="range" id="deposit2-slider" disabled style="opacity: 0.7;">
+        </div>
+        <div class="input-group">
+            <div class="input-label">
+              <span>Phase 2 Timeline</span>
+              <div class="input-with-val"><input type="number" id="phase2-dur-num" min="1" max="48" step="1" value="10" oninput="syncInput('phase2-dur')"><span id="p2-unit-label">Months</span></div>
+            </div>
+            <input type="range" id="phase2-dur-slider" min="1" max="48" step="1" value="10" oninput="syncSlider('phase2-dur')">
+        </div>
+    </div>
+
+    <!-- Global Inputs -->
+    <div class="input-section" style="border-left: 4px solid #64748b;">
+      <div class="input-group">
+        <div class="input-label">
+          <span>Annual Interest Rate</span>
+          <div class="input-with-val"><input type="number" id="rate-num" min="0" max="25" step="0.1" value="5.0" oninput="syncInput('rate')">%</div>
+        </div>
+        <input type="range" id="rate-slider" min="0" max="15" step="0.1" value="5.0" oninput="syncSlider('rate')">
+      </div>
+      <div class="input-group">
+        <div class="input-label">
+          <span>Starting Balance</span>
+          <div class="input-with-val">$<input type="number" id="start-num" min="0" max="50000" step="1" value="0" oninput="syncInput('start')"></div>
+        </div>
+        <input type="range" id="start-slider" min="0" max="10000" step="1" value="0" oninput="syncSlider('start')">
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-lbl">Total Balance</div>
+        <div class="stat-val" id="res-total">$0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Interest Earned</div>
+        <div class="stat-val" id="res-interest" style="color: var(--secondary);">$0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Total Contributed</div>
+        <div class="stat-val" id="res-contrib" style="color: #64748b; font-size: 0.95rem;">$0</div>
+      </div>
+      <div class="stat-card" style="background: #eff6ff; border-color: #bfdbfe;">
+        <div class="stat-lbl" style="color: #1e40af;">Target End Date</div>
+        <div class="stat-val" id="res-end-date" style="color: #1d4ed8; font-size: 0.9rem;">-</div>
+      </div>
+    </div>
+
+    <canvas id="chart"></canvas>
+  </div>
+
+  <script>
+    let currentUnit = 'months';
+
+    const config = {
+      days: { name: 'Day', plural: 'Days', periodsPerYear: 365, p1Max: 90, p2Max: 365, defaultP1: 30, defaultP2: 90 },
+      weeks: { name: 'Week', plural: 'Weeks', periodsPerYear: 52, p1Max: 52, p2Max: 52, defaultP1: 4, defaultP2: 26 },
+      months: { name: 'Month', plural: 'Months', periodsPerYear: 12, p1Max: 12, p2Max: 36, defaultP1: 2, defaultP2: 10 }
+    };
+
+    function setUnit(unit) {
+      currentUnit = unit;
+      document.querySelectorAll('.unit-toggle button').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-' + unit).classList.add('active');
+      
+      const cfg = config[unit];
+      
+      const p1Slider = document.getElementById('phase1-dur-slider');
+      const p1Num = document.getElementById('phase1-dur-num');
+      p1Slider.max = cfg.p1Max;
+      p1Num.max = cfg.p1Max;
+      if (parseInt(p1Num.value) > cfg.p1Max) {
+        p1Num.value = cfg.defaultP1;
+        p1Slider.value = cfg.defaultP1;
+      }
+      
+      const p2Slider = document.getElementById('phase2-dur-slider');
+      const p2Num = document.getElementById('phase2-dur-num');
+      p2Slider.max = cfg.p2Max;
+      p2Num.max = cfg.p2Max;
+      if (parseInt(p2Num.value) > cfg.p2Max) {
+        p2Num.value = cfg.defaultP2;
+        p2Slider.value = cfg.defaultP2;
+      }
+      
+      document.getElementById('p1-unit-label').innerText = cfg.plural;
+      document.getElementById('p2-unit-label').innerText = cfg.plural;
+      
+      calculate();
+    }
+
+    function syncInput(name) {
+      const numBox = document.getElementById(name + '-num');
+      const slider = document.getElementById(name + '-slider');
+      if (!slider) return;
+      let val = parseFloat(numBox.value);
+      if (isNaN(val)) return;
+      slider.value = val;
+      calculate();
+    }
+
+    function syncSlider(name) {
+      const numBox = document.getElementById(name + '-num');
+      const slider = document.getElementById(name + '-slider');
+      if (!numBox) return;
+      numBox.value = slider.value;
+      calculate();
+    }
+
+    function calculateEndDate(totalPeriods, unit) {
+      let date = new Date(2026, 7, 22); // August 22, 2026
+      if (unit === 'days') {
+        date.setDate(date.getDate() + totalPeriods);
+      } else if (unit === 'weeks') {
+        date.setDate(date.getDate() + (totalPeriods * 7));
+      } else if (unit === 'months') {
+        date.setMonth(date.getMonth() + totalPeriods);
+      }
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function calculate() {
+      const cfg = config[currentUnit];
+      
+      const start = parseFloat(document.getElementById('start-num').value) || 0;
+      const annualRate = (parseFloat(document.getElementById('rate-num').value) || 0) / 100;
+      
+      const dep1 = parseFloat(document.getElementById('deposit1-num').value) || 0;
+      const dur1 = parseInt(document.getElementById('phase1-dur-num').value) || 1;
+      
+      const debtPayment = parseFloat(document.getElementById('debt-num').value) || 0;
+      const dep2 = dep1 + debtPayment; 
+      
+      document.getElementById('deposit2-display').innerText = Math.round(dep2).toLocaleString();
+      document.getElementById('deposit2-slider').value = dep2;
+
+      const dur2 = parseInt(document.getElementById('phase2-dur-num').value) || 1;
+      const totalPeriods = dur1 + dur2;
+
+      const ratePerPeriod = annualRate / cfg.periodsPerYear;
+      let balance = start;
+      let totalContrib = start;
+      
+      const history = [{ period: 0, balance: start, contrib: start }];
+      let periodCounter = 0;
+
+      // Phase 1 Loop
+      for (let i = 1; i <= dur1; i++) {
+        balance = (balance + dep1) * (1 + ratePerPeriod);
+        totalContrib += dep1;
+        periodCounter++;
+        history.push({ period: periodCounter, balance: balance, contrib: totalContrib });
+      }
+
+      // Phase 2 Loop
+      for (let i = 1; i <= dur2; i++) {
+        balance = (balance + dep2) * (1 + ratePerPeriod);
+        totalContrib += dep2;
+        periodCounter++;
+        history.push({ period: periodCounter, balance: balance, contrib: totalContrib });
+      }
+
+      const totalInterest = balance - totalContrib;
+
+      document.getElementById('res-total').innerText = '$' + Math.round(balance).toLocaleString();
+      document.getElementById('res-contrib').innerText = '$' + Math.round(totalContrib).toLocaleString();
+      document.getElementById('res-interest').innerText = '$' + Math.round(totalInterest).toLocaleString();
+      document.getElementById('res-end-date').innerText = calculateEndDate(totalPeriods, currentUnit);
+
+      drawChart(history, dur1);
+    }
+
+    function drawChart(data, p1Dur) {
+      const canvas = document.getElementById('chart');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const padding = 35;
+
+      ctx.clearRect(0, 0, w, h);
+      if (data.length < 2) return;
+
+      const maxVal = Math.max(...data.map(d => d.balance)) * 1.1;
+
+      // Grid Lines
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 3; i++) {
+        const y = h - padding - (i / 3) * (h - 2 * padding);
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(w - padding, y);
+        ctx.stroke();
+        
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px sans-serif';
+        const labelVal = Math.round(maxVal * (i / 3));
+        ctx.fillText('$'+labelVal.toLocaleString(), 2, y-3);
+      }
+
+      // Phase 1 (Solid Blue)
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      const p1Slice = data.slice(0, p1Dur + 1);
+      p1Slice.forEach((d, i) => {
+        const x = padding + (i / (data.length - 1)) * (w - 2 * padding);
+        const y = h - padding - (d.balance / maxVal) * (h - 2 * padding);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Phase 2 (Dashed Teal)
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      const p2Slice = data.slice(p1Dur);
+      p2Slice.forEach((d, i) => {
+        const absIdx = p1Dur + i;
+        const x = padding + (absIdx / (data.length - 1)) * (w - 2 * padding);
+        const y = h - padding - (d.balance / maxVal) * (h - 2 * padding);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    window.onload = calculate;
+    window.onresize = calculate;
+  </script>
+</body>
+</html>
+
