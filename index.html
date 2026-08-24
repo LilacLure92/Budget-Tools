@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Safe-to-Spend Budget Calculator</title>
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-light: #8b5cf6;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        /* Top Summary Cards Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: white;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .summary-box.secondary {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .summary-box .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.9;
+        }
+
+        .summary-box .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 14px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-label-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .weekly-tag {
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .input-group input {
+            width: 100px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: right;
+            background: #f1f5f9;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .category-section {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .category-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.03em;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .totals-row.final {
+            border-top: 2px solid var(--border);
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Top Summary Averages -->
+    <div class="summary-grid">
+        <div class="summary-box">
+            <div class="label">Daily Avg (Free)</div>
+            <div class="value" id="dispDaily">$0.00</div>
+        </div>
+        <div class="summary-box">
+            <div class="label">Weekly Avg (Free)</div>
+            <div class="value" id="dispWeekly">$0.00</div>
+        </div>
+        <div class="summary-box secondary">
+            <div class="label">Monthly Avg (Free)</div>
+            <div class="value" id="dispMonthly">$0.00</div>
+        </div>
+        <div class="summary-box secondary">
+            <div class="label">Yearly Avg (Free)</div>
+            <div class="value" id="dispYearly">$0.00</div>
+        </div>
+    </div>
+
+    <!-- 1. Income Settings -->
+    <div class="card">
+        <h2>1. Income & Cycle Settings</h2>
+        <div class="input-group">
+            <div class="input-label-wrap">
+                <label>Cycle Net Income ($)</label>
+                <span class="weekly-tag" id="netWeeklyTag">($180.00 / wk)</span>
+            </div>
+            <input type="number" id="netIncome" value="720" oninput="calculateBudget()">
+        </div>
+        <div class="input-group">
+            <div class="input-label-wrap">
+                <label>Cycle Length (Weeks)</label>
+            </div>
+            <input type="number" id="cycleWeeks" value="4" min="1" max="12" oninput="calculateBudget()">
+        </div>
+    </div>
+
+    <!-- 2. Editable Categories -->
+    <div class="card">
+        <h2>2. Expenses & Savings Allocations</h2>
+        
+        <div class="category-section">
+            <div class="category-title">Utilities & Bills (Per Cycle)</div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>Electricity</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="125" oninput="calculateBudget()">
+            </div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>House Gas Bill</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="40" oninput="calculateBudget()">
+            </div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>Water (Quarterly/Cycle)</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="30" oninput="calculateBudget()">
+            </div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>Internet</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="45" oninput="calculateBudget()">
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-title">Essential Expenses (Per Cycle)</div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>Car Gas</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="200" oninput="calculateBudget()">
+            </div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>Food / Groceries</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="100" oninput="calculateBudget()">
+            </div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>Cat Food & Care</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="100" oninput="calculateBudget()">
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-title">Savings Goals (Per Cycle)</div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>Vacation Savings</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="80" oninput="calculateBudget()">
+            </div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>1099 Tax Savings</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="40" oninput="calculateBudget()">
+            </div>
+            <div class="input-group">
+                <div class="input-label-wrap">
+                    <label>Laptop Savings</label>
+                    <span class="weekly-tag">($0.00 / wk)</span>
+                </div>
+                <input type="number" class="expense-input" value="0" oninput="calculateBudget()">
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Summary Totals Card -->
+    <div class="card">
+        <h2>3. Cycle Totals & Summary</h2>
+        <div class="totals-row">
+            <span>Total Cycle Net Income:</span>
+            <strong id="sumIncome">$720.00</strong>
+        </div>
+        <div class="totals-row">
+            <span>Total Expenses & Savings:</span>
+            <strong id="sumExpenses">$750.00</strong>
+        </div>
+        <div class="totals-row final">
+            <span>Free Spending Pool:</span>
+            <strong id="sumFreePool" style="color: var(--success);">$0.00</strong>
+        </div>
+        <div class="totals-row" style="margin-top: 10px; font-size: 1rem; color: var(--primary);">
+            <span>Combined Weekly Obligation:</span>
+            <strong id="sumWeeklyObligation">$0.00 / wk</strong>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateBudget() {
+        let netIncome = parseFloat(document.getElementById('netIncome').value) || 0;
+        let weeksCount = parseInt(document.getElementById('cycleWeeks').value) || 4;
+
+        // Update net weekly tag
+        let netWeekly = netIncome / weeksCount;
+        document.getElementById('netWeeklyTag').innerText = `($${netWeekly.toFixed(2)} / wk)`;
+
+        // Sum all category input fields and update their individual weekly tags
+        let expenseInputs = document.querySelectorAll('.expense-input');
+        let totalExpenses = 0;
+
+        expenseInputs.forEach(input => {
+            let cycleVal = parseFloat(input.value) || 0;
+            totalExpenses += cycleVal;
+
+            let weeklyVal = cycleVal / weeksCount;
+            let weeklyTag = input.parentElement.querySelector('.weekly-tag');
+            if (weeklyTag) {
+                weeklyTag.innerText = `($${weeklyVal.toFixed(2)} / wk)`;
+            }
+        });
+
+        let freeSpendingPool = netIncome - totalExpenses;
+        let weeklyFree = freeSpendingPool / weeksCount;
+        let dailyFree = weeklyFree / 7;
+        let monthlyFree = weeklyFree * 4.33;
+        let yearlyFree = weeklyFree * 52;
+
+        let weeklyObligation = totalExpenses / weeksCount;
+
+        // Update Top Summary Cards
+        document.getElementById('dispDaily').innerText = `$${dailyFree.toFixed(2)}`;
+        document.getElementById('dispWeekly').innerText = `$${weeklyFree.toFixed(2)}`;
+        document.getElementById('dispMonthly').innerText = `$${monthlyFree.toFixed(2)}`;
+        document.getElementById('dispYearly').innerText = `$${yearlyFree.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+
+        // Update Bottom Totals
+        document.getElementById('sumIncome').innerText = `$${netIncome.toFixed(2)}`;
+        document.getElementById('sumExpenses').innerText = `$${totalExpenses.toFixed(2)}`;
+        
+        let freePoolEl = document.getElementById('sumFreePool');
+        freePoolEl.innerText = `$${freeSpendingPool.toFixed(2)}`;
+        freePoolEl.style.color = freeSpendingPool < 0 ? 'var(--danger)' : 'var(--success)';
+
+        document.getElementById('sumWeeklyObligation').innerText = `$${weeklyObligation.toFixed(2)} / wk`;
+    }
+
+    // Run on page load to initialize values
+    calculateBudget();
+</script>
+
+</body>
+</html>
+
