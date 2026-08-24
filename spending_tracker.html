@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Log Expense Tracker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f3f7;
+            color: #2d2338;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #5c3d75;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(92, 61, 117, 0.08);
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #dcd6e3;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #7b5299;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #633c7d;
+        }
+        .secondary-btn {
+            background-color: #9c7bb8;
+            margin-bottom: 15px;
+        }
+        .secondary-btn:hover {
+            background-color: #7b5299;
+        }
+        .export-btn {
+            background-color: #528699;
+            margin-bottom: 8px;
+        }
+        .export-btn:hover {
+            background-color: #3e6675;
+        }
+        .import-btn {
+            background-color: #865299;
+            margin-bottom: 0;
+        }
+        .import-btn:hover {
+            background-color: #6a3d78;
+        }
+        .totals-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        .total-box {
+            background: #f0ebf5;
+            padding: 10px 6px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .total-box span {
+            display: block;
+            font-size: 10px;
+            color: #665b73;
+            text-transform: uppercase;
+        }
+        .total-box strong {
+            font-size: 14px;
+            color: #5c3d75;
+        }
+        .cat-row {
+            background: #f9f7fc;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #ece4f2;
+        }
+        .cat-header {
+            font-weight: bold;
+            color: #5c3d75;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        .cat-actions {
+            font-size: 11px;
+        }
+        .cat-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0 3px;
+            width: auto;
+        }
+        .move-btn {
+            color: #7b5299;
+        }
+        .edit-cat-btn {
+            color: #528699;
+        }
+        .delete-cat-btn {
+            color: #cc4444;
+        }
+        .cat-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            text-align: center;
+            font-size: 11px;
+            color: #554863;
+        }
+        .cat-stats div span {
+            display: block;
+            font-size: 9px;
+            color: #887a96;
+            text-transform: uppercase;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #cc4444;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0 5px;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Quick Log Tracker</h2>
+
+    <div class="card">
+        <!-- Add Custom Category Section -->
+        <label for="newCategory">Add New Category</label>
+        <input type="text" id="newCategory" placeholder="e.g., Household, Personal Care">
+        <button class="secondary-btn" onclick="addCategory()">Add Category</button>
+
+        <label for="amount">Amount ($)</label>
+        <input type="number" id="amount" step="0.01" placeholder="0.00">
+
+        <label for="category">Category</label>
+        <select id="category">
+            <!-- Categories will load dynamically -->
+        </select>
+
+        <button onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <!-- Export & Import Backup Card -->
+    <div class="card" style="padding: 15px; text-align: center;">
+        <button class="export-btn" onclick="exportBackup()">📥 Export Backup File</button>
+        <button class="import-btn" onclick="document.getElementById('importFile').click()">📂 Import Backup File</button>
+        <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importBackup(event)">
+    </div>
+
+    <!-- Time-Frame Breakdown Grid -->
+    <div class="time-grid">
+        <div class="total-box">
+            <span>Week</span>
+            <strong id="weekTotal">$0.00</strong>
+        </div>
+        <div class="total-box">
+            <span>Last Mo.</span>
+            <strong id="lastMonthTotal">$0.00</strong>
+        </div>
+        <div class="total-box">
+            <span>This Mo.</span>
+            <strong id="monthTotal">$0.00</strong>
+        </div>
+        <div class="total-box">
+            <span>Year</span>
+            <strong id="yearTotal">$0.00</strong>
+        </div>
+    </div>
+
+    <div class="totals-grid">
+        <div class="total-box">
+            <span>All-Time Total</span>
+            <strong id="grandTotal">$0.00</strong>
+        </div>
+        <div class="total-box">
+            <span>Entries</span>
+            <strong id="entryCount">0</strong>
+        </div>
+    </div>
+
+    <!-- Category Breakdown Card -->
+    <div class="card">
+        <h3 style="margin-top: 0; font-size: 16px; color: #5c3d75;">Breakdown by Category</h3>
+        <div id="categoryBreakdownList">
+            <div style="text-align: center; color: #888; font-size: 13px;">No category data yet.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-top: 0; font-size: 16px; color: #5c3d75;">Recent Log</h3>
+        <ul id="expenseList">
+            <li style="text-align: center; color: #888;">No expenses logged yet.</li>
+        </ul>
+    </div>
+
+<script>
+    let categories = JSON.parse(localStorage.getItem('quick_categories')) || [
+        "Car Gas", 
+        "Food & Groceries", 
+        "Cat Care", 
+        "Utilities & Bills", 
+        "Flex & Treats", 
+        "Vacation Savings", 
+        "Tax Savings"
+    ];
+
+    let expenses = JSON.parse(localStorage.getItem('quick_expenses')) || [];
+
+    function updateCategoryDropdown() {
+        const select = document.getElementById('category');
+        select.innerHTML = '';
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            select.appendChild(option);
+        });
+    }
+
+    function addCategory() {
+        const input = document.getElementById('newCategory');
+        const newCat = input.value.trim();
+
+        if (newCat === '') {
+            alert('Please type a category name.');
+            return;
+        }
+
+        if (categories.includes(newCat)) {
+            alert('That category already exists!');
+            return;
+        }
+
+        categories.push(newCat);
+        localStorage.setItem('quick_categories', JSON.stringify(categories));
+        updateCategoryDropdown();
+        saveAndRender();
+        
+        input.value = '';
+    }
+
+    function moveCategory(index, direction) {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= categories.length) return;
+
+        const temp = categories[index];
+        categories[index] = categories[newIndex];
+        categories[newIndex] = temp;
+
+        localStorage.setItem('quick_categories', JSON.stringify(categories));
+        updateCategoryDropdown();
+        saveAndRender();
+    }
+
+    function editCategory(oldName) {
+        const newName = prompt(`Rename category "${oldName}" to:`, oldName);
+        if (!newName || newName.trim() === '') return;
+        
+        const trimmed = newName.trim();
+        if (categories.includes(trimmed)) {
+            alert('A category with that name already exists!');
+            return;
+        }
+
+        const index = categories.indexOf(oldName);
+        if (index !== -1) {
+            categories[index] = trimmed;
+        }
+
+        expenses.forEach(exp => {
+            if (exp.category === oldName) {
+                exp.category = trimmed;
+            }
+        });
+
+        localStorage.setItem('quick_categories', JSON.stringify(categories));
+        updateCategoryDropdown();
+        saveAndRender();
+    }
+
+    function deleteCategory(catName) {
+        if (categories.length <= 1) {
+            alert('You must keep at least one category.');
+            return;
+        }
+
+        if (confirm(`Are you sure you want to delete category "${catName}"? Expenses logged under this category will also be removed.`)) {
+            categories = categories.filter(c => c !== catName);
+            expenses = expenses.filter(exp => exp.category !== catName);
+
+            localStorage.setItem('quick_categories', JSON.stringify(categories));
+            updateCategoryDropdown();
+            saveAndRender();
+        }
+    }
+
+    function addExpense() {
+        const amountInput = document.getElementById('amount');
+        const categorySelect = document.getElementById('category');
+        
+        const amount = parseFloat(amountInput.value);
+        if (isNaN(amount) || amount <= 0) {
+            alert('Please enter a valid amount.');
+            return;
+        }
+
+        const expense = {
+            id: Date.now(),
+            amount: amount,
+            category: categorySelect.value,
+            timestamp: new Date().toISOString(),
+            dateFormatted: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        };
+
+        expenses.unshift(expense);
+        saveAndRender();
+        
+        amountInput.value = '';
+    }
+
+    function deleteExpense(id) {
+        expenses = expenses.filter(exp => exp.id !== id);
+        saveAndRender();
+    }
+
+    function exportBackup() {
+        const backupData = {
+            categories: categories,
+            expenses: expenses,
+            exportDate: new Date().toISOString()
+        };
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `expense_tracker_backup_${new Date().toISOString().slice(0,10)}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (importedData.categories && importedData.expenses) {
+                    categories = importedData.categories;
+                    expenses = importedData.expenses;
+                    
+                    localStorage.setItem('quick_categories', JSON.stringify(categories));
+                    localStorage.setItem('quick_expenses', JSON.stringify(expenses));
+                    
+                    updateCategoryDropdown();
+                    saveAndRender();
+                    alert('Backup imported successfully!');
+                } else {
+                    alert('Invalid backup file format.');
+                }
+            } catch (err) {
+                alert('Error reading backup file.');
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; // Reset input
+    }
+
+    function isSameWeek(date1, date2) {
+        const d1 = new Date(date1);
+        const d2 = new Date(date2);
+        const getThursday = d => {
+            const date = new Date(d);
+            date.setDate(date.getDate() + (4 - (date.getDay() || 7)));
+            return date;
+        };
+        const th1 = getThursday(d1);
+        const th2 = getThursday(d2);
+        return th1.getFullYear() === th2.getFullYear() && th1.getMonth() === th2.getMonth() && Math.abs(th1 - th2) <= 6 * 86400000;
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('quick_expenses', JSON.stringify(expenses));
+        
+        const listEl = document.getElementById('expenseList');
+        const breakdownEl = document.getElementById('categoryBreakdownList');
+        const grandTotalEl = document.getElementById('grandTotal');
+        const weekTotalEl = document.getElementById('weekTotal');
+        const lastMonthTotalEl = document.getElementById('lastMonthTotal');
+        const monthTotalEl = document.getElementById('monthTotal');
+        const yearTotalEl = document.getElementById('yearTotal');
+        const entryCountEl = document.getElementById('entryCount');
+
+        listEl.innerHTML = '';
+        breakdownEl.innerHTML = '';
+        
+        let grandTotal = 0;
+        let weekTotal = 0;
+        let lastMonthTotal = 0;
+        let monthTotal = 0;
+        let yearTotal = 0;
+
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        let lastMonthIndex = currentMonth - 1;
+        let lastMonthYear = currentYear;
+        if (lastMonthIndex < 0) {
+            lastMonthIndex = 11;
+            lastMonthYear = currentYear - 1;
+        }
+
+        let catTotals = {};
+        categories.forEach(cat => {
+            catTotals[cat] = { week: 0, lastMonth: 0, thisMonth: 0, year: 0 };
+        });
+
+        if (expenses.length > 0) {
+            expenses.forEach(exp => {
+                const expDate = new Date(exp.timestamp);
+                const amt = exp.amount;
+                const cat = exp.category;
+
+                grandTotal += amt;
+
+                if (!catTotals[cat]) {
+                    catTotals[cat] = { week: 0, lastMonth: 0, thisMonth: 0, year: 0 };
+                }
+
+                if (isSameWeek(expDate, now)) {
+                    weekTotal += amt;
+                    catTotals[cat].week += amt;
+                }
+                if (expDate.getMonth() === lastMonthIndex && expDate.getFullYear() === lastMonthYear) {
+                    lastMonthTotal += amt;
+                    catTotals[cat].lastMonth += amt;
+                }
+                if (expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear) {
+                    monthTotal += amt;
+                    catTotals[cat].thisMonth += amt;
+                }
+                if (expDate.getFullYear() === currentYear) {
+                    yearTotal += amt;
+                    catTotals[cat].year += amt;
+                }
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span><strong>${exp.dateFormatted}</strong> - ${exp.category}</span>
+                    <span>$${amt.toFixed(2)} <button class="delete-btn" onclick="deleteExpense(${exp.id})">×</button></span>
+                `;
+                listEl.appendChild(li);
+            });
+        } else {
+            listEl.innerHTML = '<li style="text-align: center; color: #888;">No expenses logged yet.</li>';
+        }
+
+        categories.forEach((cat, index) => {
+            const stats = catTotals[cat];
+            const div = document.createElement('div');
+            div.className = 'cat-row';
+            div.innerHTML = `
+                <div class="cat-header">
+                    <span>${cat}</span>
+                    <span class="cat-actions">
+                        <button class="cat-action-btn move-btn" onclick="moveCategory(${index}, -1)" ${index === 0 ? 'style="opacity:0.3;cursor:default;"' : ''}>▲</button>
+                        <button class="cat-action-btn move-btn" onclick="moveCategory(${index}, 1)" ${index === categories.length - 1 ? 'style="opacity:0.3;cursor:default;"' : ''}>▼</button> | 
+                        <button class="cat-action-btn edit-cat-btn" onclick="editCategory('${cat}')">Edit</button> | 
+                        <button class="cat-action-btn delete-cat-btn" onclick="deleteCategory('${cat}')">Delete</button>
+                    </span>
+                </div>
+                <div class="cat-stats">
+                    <div><span>Week</span>$${stats.week.toFixed(2)}</div>
+                    <div><span>Last Mo.</span>$${stats.lastMonth.toFixed(2)}</div>
+                    <div><span>This Mo.</span>$${stats.thisMonth.toFixed(2)}</div>
+                    <div><span>Year</span>$${stats.year.toFixed(2)}</div>
+                </div>
+            `;
+            breakdownEl.appendChild(div);
+        });
+
+        grandTotalEl.textContent = `$${grandTotal.toFixed(2)}`;
+        weekTotalEl.textContent = `$${weekTotal.toFixed(2)}`;
+        lastMonthTotalEl.textContent = `$${lastMonthTotal.toFixed(2)}`;
+        monthTotalEl.textContent = `$${monthTotal.toFixed(2)}`;
+        yearTotalEl.textContent = `$${yearTotal.toFixed(2)}`;
+        entryCountEl.textContent = expenses.length;
+    }
+
+    updateCategoryDropdown();
+    saveAndRender();
+</script>
+
+</body>
+</html>
