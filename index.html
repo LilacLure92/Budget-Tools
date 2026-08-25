@@ -27,7 +27,7 @@
       justify-content: center;
     }
     .container {
-      max-width: 650px;
+      max-width: 680px;
       width: 100%;
       background: var(--card);
       padding: 22px;
@@ -98,6 +98,24 @@
       align-items: center;
       font-size: 0.85rem;
       font-weight: 600;
+      gap: 10px;
+    }
+    .input-row span {
+      flex: 1;
+    }
+    .input-col-group {
+      display: flex;
+      gap: 6px;
+    }
+    .input-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .input-col label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
     }
     .input-sublabel {
       font-size: 0.75rem;
@@ -105,13 +123,8 @@
       margin-top: -6px;
       margin-bottom: 4px;
     }
-    .input-with-val {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
     input[type="number"] {
-      width: 80px;
+      width: 70px;
       padding: 5px;
       font-size: 0.85rem;
       font-weight: 700;
@@ -206,7 +219,7 @@
 <body>
   <div class="container">
     <h1>Flexible Weekly Safe-to-Spend</h1>
-    <div class="subtitle">Track balances and sync data seamlessly across devices.</div>
+    <div class="subtitle">Track balances, compare last week, and sync data across devices.</div>
 
     <!-- 4-Card Averages Hero Grid -->
     <div class="hero-stat-grid">
@@ -233,13 +246,24 @@
       <div class="section-title" style="color: var(--primary);">1. Income & Cycle Settings</div>
       <div class="input-row">
         <span>Cycle Net Income ($)</span>
-        <div class="input-with-val"><input type="number" id="income-input" value="720" min="0" step="10" oninput="calculate()"></div>
+        <div class="input-col-group">
+          <div class="input-col">
+            <label>Last Wk</label>
+            <input type="number" id="income-last" value="720" min="0" step="10" oninput="calculate()">
+          </div>
+          <div class="input-col">
+            <label>This Wk</label>
+            <input type="number" id="income-input" value="720" min="0" step="10" oninput="calculate()">
+          </div>
+        </div>
       </div>
       <div class="input-sublabel" id="income-weekly-sub">($180.00 / wk)</div>
 
       <div class="input-row">
         <span># of Weeks in Cycle</span>
-        <div class="input-with-val"><input type="number" id="weeks-input" value="4" min="1" max="12" step="1" onchange="buildTable()"></div>
+        <div style="display: flex; gap: 6px;">
+          <input type="number" id="weeks-input" value="4" min="1" max="12" step="1" onchange="buildTable()">
+        </div>
       </div>
     </div>
 
@@ -251,31 +275,46 @@
       
       <div class="input-row">
         <span>Electricity</span>
-        <div class="input-with-val"><input type="number" id="bill-elec" value="125" min="0" step="1" oninput="calculate()"></div>
+        <div class="input-col-group">
+          <div class="input-col"><input type="number" id="elec-last" value="125" min="0" step="1" oninput="calculate()"></div>
+          <div class="input-col"><input type="number" id="bill-elec" value="125" min="0" step="1" oninput="calculate()"></div>
+        </div>
       </div>
       <div class="input-sublabel" id="sub-elec">($31.25 / wk)</div>
 
       <div class="input-row">
         <span>House Gas</span>
-        <div class="input-with-val"><input type="number" id="bill-gas" value="40" min="0" step="1" oninput="calculate()"></div>
+        <div class="input-col-group">
+          <div class="input-col"><input type="number" id="gas-last" value="40" min="0" step="1" oninput="calculate()"></div>
+          <div class="input-col"><input type="number" id="bill-gas" value="40" min="0" step="1" oninput="calculate()"></div>
+        </div>
       </div>
       <div class="input-sublabel" id="sub-gas">($10.00 / wk)</div>
 
       <div class="input-row">
         <span>Water (billed quarterly)</span>
-        <div class="input-with-val"><input type="number" id="bill-water" value="30" min="0" step="1" oninput="calculate()"></div>
+        <div class="input-col-group">
+          <div class="input-col"><input type="number" id="water-last" value="30" min="0" step="1" oninput="calculate()"></div>
+          <div class="input-col"><input type="number" id="bill-water" value="30" min="0" step="1" oninput="calculate()"></div>
+        </div>
       </div>
       <div class="input-sublabel" id="sub-water">($7.50 / wk)</div>
 
       <div class="input-row">
         <span>Internet</span>
-        <div class="input-with-val"><input type="number" id="bill-internet" value="45" min="0" step="1" oninput="calculate()"></div>
+        <div class="input-col-group">
+          <div class="input-col"><input type="number" id="internet-last" value="45" min="0" step="1" oninput="calculate()"></div>
+          <div class="input-col"><input type="number" id="bill-internet" value="45" min="0" step="1" oninput="calculate()"></div>
+        </div>
       </div>
       <div class="input-sublabel" id="sub-internet">($11.25 / wk)</div>
 
       <div class="input-row">
         <span>Car Gas</span>
-        <div class="input-with-val"><input type="number" id="bill-cargas" value="50" min="0" step="1" oninput="calculate()"></div>
+        <div class="input-col-group">
+          <div class="input-col"><input type="number" id="cargas-last" value="50" min="0" step="1" oninput="calculate()"></div>
+          <div class="input-col"><input type="number" id="bill-cargas" value="50" min="0" step="1" oninput="calculate()"></div>
+        </div>
       </div>
       <div class="input-sublabel" id="sub-cargas">($12.50 / wk)</div>
 
@@ -283,13 +322,19 @@
       
       <div class="input-row">
         <span>1099 Savings</span>
-        <div class="input-with-val"><input type="number" id="sav-1099" value="50" min="0" step="1" oninput="calculate()"></div>
+        <div class="input-col-group">
+          <div class="input-col"><input type="number" id="sav1099-last" value="50" min="0" step="1" oninput="calculate()"></div>
+          <div class="input-col"><input type="number" id="sav-1099" value="50" min="0" step="1" oninput="calculate()"></div>
+        </div>
       </div>
       <div class="input-sublabel" id="sub-1099">($12.50 / wk)</div>
 
       <div class="input-row">
         <span>Vacation Savings</span>
-        <div class="input-with-val"><input type="number" id="sav-vacation" value="50" min="0" step="1" oninput="calculate()"></div>
+        <div class="input-col-group">
+          <div class="input-col"><input type="number" id="vacation-last" value="50" min="0" step="1" oninput="calculate()"></div>
+          <div class="input-col"><input type="number" id="sav-vacation" value="50" min="0" step="1" oninput="calculate()"></div>
+        </div>
       </div>
       <div class="input-sublabel" id="sub-vacation">($12.50 / wk)</div>
 
@@ -507,14 +552,22 @@
     function exportData() {
       const data = {
         income: document.getElementById('income-input').value,
+        incomeLast: document.getElementById('income-last').value,
         weeks: document.getElementById('weeks-input').value,
         elec: document.getElementById('bill-elec').value,
+        elecLast: document.getElementById('elec-last').value,
         gas: document.getElementById('bill-gas').value,
+        gasLast: document.getElementById('gas-last').value,
         water: document.getElementById('bill-water').value,
+        waterLast: document.getElementById('water-last').value,
         internet: document.getElementById('bill-internet').value,
+        internetLast: document.getElementById('internet-last').value,
         cargas: document.getElementById('bill-cargas').value,
+        cargasLast: document.getElementById('cargas-last').value,
         sav1099: document.getElementById('sav-1099').value,
-        savVacation: document.getElementById('sav-vacation').value
+        sav1099Last: document.getElementById('sav1099-last').value,
+        savVacation: document.getElementById('sav-vacation').value,
+        vacationLast: document.getElementById('vacation-last').value
       };
       
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -535,17 +588,25 @@
         try {
           const data = JSON.parse(e.target.result);
           if (data.income !== undefined) document.getElementById('income-input').value = data.income;
+          if (data.incomeLast !== undefined) document.getElementById('income-last').value = data.incomeLast;
           if (data.weeks !== undefined) {
             document.getElementById('weeks-input').value = data.weeks;
             buildTable();
           }
           if (data.elec !== undefined) document.getElementById('bill-elec').value = data.elec;
+          if (data.elecLast !== undefined) document.getElementById('elec-last').value = data.elecLast;
           if (data.gas !== undefined) document.getElementById('bill-gas').value = data.gas;
+          if (data.gasLast !== undefined) document.getElementById('gas-last').value = data.gasLast;
           if (data.water !== undefined) document.getElementById('bill-water').value = data.water;
+          if (data.waterLast !== undefined) document.getElementById('water-last').value = data.waterLast;
           if (data.internet !== undefined) document.getElementById('bill-internet').value = data.internet;
+          if (data.internetLast !== undefined) document.getElementById('internet-last').value = data.internetLast;
           if (data.cargas !== undefined) document.getElementById('bill-cargas').value = data.cargas;
+          if (data.cargasLast !== undefined) document.getElementById('cargas-last').value = data.cargasLast;
           if (data.sav1099 !== undefined) document.getElementById('sav-1099').value = data.sav1099;
+          if (data.sav1099Last !== undefined) document.getElementById('sav1099-last').value = data.sav1099Last;
           if (data.savVacation !== undefined) document.getElementById('sav-vacation').value = data.savVacation;
+          if (data.vacationLast !== undefined) document.getElementById('vacation-last').value = data.vacationLast;
           
           calculate();
           alert('Data imported successfully!');
