@@ -72,7 +72,7 @@
       opacity: 0.9;
     }
     .hero-card .val {
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 800;
       margin-top: 4px;
     }
@@ -99,12 +99,6 @@
       font-size: 0.85rem;
       font-weight: 600;
     }
-    .input-sublabel {
-      font-size: 0.75rem;
-      color: var(--primary);
-      margin-top: -6px;
-      margin-bottom: 4px;
-    }
     .input-with-val {
       display: flex;
       align-items: center;
@@ -119,6 +113,18 @@
       border-radius: 6px;
       text-align: right;
       background: #ffffff;
+    }
+    .badge-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--danger);
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .btn-group {
       display: flex;
@@ -173,9 +179,14 @@
     }
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
       margin-bottom: 16px;
+    }
+    @media (min-width: 480px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
     .stat-card {
       background: #f8fafc;
@@ -206,79 +217,60 @@
 <body>
   <div class="container">
     <h1>Flexible Weekly Safe-to-Spend</h1>
-    <div class="subtitle">Track balances and sync data seamlessly across devices.</div>
+    <div class="subtitle">Customize weekly savings amounts to see exact safe-to-spend averages across timelines.</div>
 
     <!-- 4-Card Averages Hero Grid -->
     <div class="hero-stat-grid">
       <div class="hero-card">
-        <div class="label">Daily Avg (Free)</div>
+        <div class="label">Daily Avg</div>
         <div class="val" id="hero-daily-val">$0.00</div>
       </div>
       <div class="hero-card">
-        <div class="label">Weekly Avg (Free)</div>
-        <div class="val" id="hero-weekly-val">$0.00</div>
+        <div class="label">Weekly Avg</div>
+        <div class="val" id="hero-weekly-val">$0</div>
       </div>
       <div class="hero-card">
-        <div class="label">Monthly Avg (Free)</div>
-        <div class="val" id="hero-monthly-val">$0.00</div>
+        <div class="label">Monthly Avg</div>
+        <div class="val" id="hero-monthly-val">$0</div>
       </div>
       <div class="hero-card">
-        <div class="label">Yearly Avg (Free)</div>
-        <div class="val" id="hero-yearly-val">$0.00</div>
+        <div class="label">Yearly Avg</div>
+        <div class="val" id="hero-yearly-val">$0</div>
       </div>
     </div>
 
-    <!-- 1. Income & Cycle Settings -->
+    <!-- Overall Income & Fixed Bills -->
     <div class="input-section" style="border-left: 4px solid var(--primary);">
-      <div class="section-title" style="color: var(--primary);">1. Income & Cycle Settings</div>
+      <div class="section-title" style="color: var(--primary);">1. Income & Fixed Bills</div>
       <div class="input-row">
-        <span>Cycle Net Income ($)</span>
-        <div class="input-with-val"><input type="number" id="income-input" value="720" min="0" step="10" oninput="calculate()"></div>
+        <span>Cycle Net Income</span>
+        <div class="input-with-val">$<input type="number" id="income-input" value="3200" min="0" step="10" oninput="calculate()"></div>
       </div>
-      <div class="input-sublabel" id="income-weekly-sub">($180.00 / wk)</div>
+      <div class="input-row">
+        <span>Fixed Bills & Utilities Total</span>
+        <div class="input-with-val">$<input type="number" id="bills-input" value="446.67" min="0" step="1" oninput="calculate()"></div>
+      </div>
+      
+      <!-- Highlighted Weekly Utility & Bill Obligation -->
+      <div class="badge-label">
+        <span>Weekly Utility & Bill Obligation:</span>
+        <span id="weekly-bill-share-display" style="font-size: 0.85rem;">$0.00 / week</span>
+      </div>
 
       <div class="input-row">
-        <span>Cycle Length (Weeks)</span>
-        <div class="input-with-val"><input type="number" id="weeks-input" value="4" min="1" max="12" step="1" onchange="buildTable()"></div>
+        <span>Overall Savings Target Goal</span>
+        <div class="input-with-val">$<input type="number" id="goal-input" value="600" min="0" step="10" oninput="syncGoalToWeeks()"></div>
+      </div>
+      <div class="input-row">
+        <span>Number of Weeks in Cycle</span>
+        <div class="input-with-val"><input type="number" id="weeks-input" value="4" min="1" max="12" step="1" onchange="buildTable()"> Weeks</div>
       </div>
     </div>
 
-    <!-- 2. Expenses & Savings Allocations -->
+    <!-- Weekly Breakdown Section -->
     <div class="input-section" style="border-left: 4px solid var(--secondary);">
-      <div class="section-title" style="color: var(--secondary);">2. Expenses & Savings Allocations</div>
-      
-      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 4px;">UTILITIES & BILLS (PER CYCLE)</div>
-      
-      <div class="input-row">
-        <span>Electricity</span>
-        <div class="input-with-val"><input type="number" id="bill-elec" value="125" min="0" step="1" oninput="calculate()"></div>
-      </div>
-      <div class="input-sublabel" id="sub-elec">($31.25 / wk)</div>
-
-      <div class="input-row">
-        <span>House Gas Bill</span>
-        <div class="input-with-val"><input type="number" id="bill-gas" value="40" min="0" step="1" oninput="calculate()"></div>
-      </div>
-      <div class="input-sublabel" id="sub-gas">($10.00 / wk)</div>
-
-      <div class="input-row">
-        <span>Water (Quarterly/Cycle)</span>
-        <div class="input-with-val"><input type="number" id="bill-water" value="30" min="0" step="1" oninput="calculate()"></div>
-      </div>
-      <div class="input-sublabel" id="sub-water">($7.50 / wk)</div>
-
-      <div class="input-row">
-        <span>Internet</span>
-        <div class="input-with-val"><input type="number" id="bill-internet" value="45" min="0" step="1" oninput="calculate()"></div>
-      </div>
-      <div class="input-sublabel" id="sub-internet">($11.25 / wk)</div>
-
-      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 10px;">SAVINGS TARGET GOAL</div>
-      <div class="input-row">
-        <span>Overall Savings Goal ($)</span>
-        <div class="input-with-val"><input type="number" id="goal-input" value="100" min="0" step="1" oninput="syncGoalToWeeks()"></div>
-      </div>
-      <div class="btn-group" style="margin-top: 8px;">
+      <div class="section-title" style="color: var(--secondary);">2. Custom Weekly Savings Allocations</div>
+      <div class="btn-group">
         <button class="btn btn-primary" onclick="distributeEvenly()">Split Goal Evenly</button>
         <button class="btn" onclick="clearSavings()">Reset Savings to $0</button>
       </div>
@@ -307,6 +299,10 @@
         <div class="stat-lbl">Total Cycle Bills</div>
         <div class="stat-val" id="stat-bills" style="color: var(--danger);">$0</div>
       </div>
+      <div class="stat-card" style="background: #fef2f2; border-color: #fecaca;">
+        <div class="stat-lbl" style="color: #991b1b;">Weekly Utility Share</div>
+        <div class="stat-val" id="stat-weekly-bills" style="color: var(--danger);">$0 / wk</div>
+      </div>
       <div class="stat-card">
         <div class="stat-lbl">Total Savings</div>
         <div class="stat-val" id="stat-savings" style="color: var(--secondary);">$0</div>
@@ -319,7 +315,7 @@
 
     <canvas id="chart"></canvas>
 
-    <!-- 3. Backup & Sync Options -->
+    <!-- Cross-Device Backup & Sync Section -->
     <div class="input-section" style="border-left: 4px solid var(--warning); margin-top: 20px;">
       <div class="section-title" style="color: var(--warning);">3. Cross-Device Backup & Sync</div>
       <div style="font-size: 0.78rem; color: var(--text-muted);">Export your data to transfer your numbers to your phone or tablet, or import a saved backup file.</div>
@@ -332,7 +328,7 @@
   </div>
 
   <script>
-    let weeklySavings = [25, 25, 25, 25];
+    let weeklySavings = [150, 150, 150, 150];
 
     function buildTable() {
       const numWeeks = parseInt(document.getElementById('weeks-input').value) || 1;
@@ -409,24 +405,16 @@
 
     function calculate() {
       const income = parseFloat(document.getElementById('income-input').value) || 0;
+      const bills = parseFloat(document.getElementById('bills-input').value) || 0;
       const numWeeks = weeklySavings.length || 1;
 
-      const elec = parseFloat(document.getElementById('bill-elec').value) || 0;
-      const gas = parseFloat(document.getElementById('bill-gas').value) || 0;
-      const water = parseFloat(document.getElementById('bill-water').value) || 0;
-      const internet = parseFloat(document.getElementById('bill-internet').value) || 0;
-
-      const totalBills = elec + gas + water + internet;
-
-      // Sub-label updates
-      document.getElementById('income-weekly-sub').innerText = `($${(income / numWeeks).toFixed(2)} / wk)`;
-      document.getElementById('sub-elec').innerText = `($${(elec / numWeeks).toFixed(2)} / wk)`;
-      document.getElementById('sub-gas').innerText = `($${(gas / numWeeks).toFixed(2)} / wk)`;
-      document.getElementById('sub-water').innerText = `($${(water / numWeeks).toFixed(2)} / wk)`;
-      document.getElementById('sub-internet').innerText = `($${(internet / numWeeks).toFixed(2)} / wk)`;
-
-      const weeklyBillsShare = totalBills / numWeeks;
+      // Weekly Share for Bills
+      const weeklyBillsShare = bills / numWeeks;
       const weeklyIncomeShare = income / numWeeks;
+
+      // Update Weekly Bills Display
+      document.getElementById('weekly-bill-share-display').innerText = '$' + weeklyBillsShare.toFixed(2) + ' / week';
+      document.getElementById('stat-weekly-bills').innerText = '$' + weeklyBillsShare.toFixed(2) + ' / wk';
 
       let totalSavings = 0;
       let totalDiscretionary = 0;
@@ -436,7 +424,7 @@
       weeklySavings.forEach((savVal, idx) => {
         totalSavings += savVal;
         
-        const weekFree = weeklyIncomeShare - weeklyBillsShare - savVal;
+        const weekFree = Math.max(0, weeklyIncomeShare - weeklyBillsShare - savVal);
         const weekDaily = weekFree / 7;
 
         weeklyFreeList.push(weekFree);
@@ -445,32 +433,26 @@
         const freeCell = document.getElementById(`week-free-${idx}`);
         const dailyCell = document.getElementById(`week-daily-${idx}`);
 
-        if (freeCell) {
-          freeCell.innerText = (weekFree < 0 ? '-$' : '$') + Math.abs(Math.round(weekFree)).toLocaleString();
-          freeCell.style.color = weekFree < 0 ? 'var(--danger)' : 'var(--primary)';
-        }
-        if (dailyCell) {
-          dailyCell.innerText = (weekDaily < 0 ? '-$' : '$') + Math.abs(weekDaily).toFixed(2) + '/day';
-          dailyCell.style.color = weekDaily < 0 ? 'var(--danger)' : 'var(--secondary)';
-        }
+        if (freeCell) freeCell.innerText = '$' + Math.round(weekFree).toLocaleString();
+        if (dailyCell) dailyCell.innerText = '$' + weekDaily.toFixed(2) + '/day';
       });
 
+      // Timeline Averages Calculations
       const avgWeekly = totalDiscretionary / numWeeks;
       const avgDaily = avgWeekly / 7;
       const avgMonthly = avgDaily * 30.4375;
       const avgYearly = avgDaily * 365;
 
-      const formatVal = (v) => (v < 0 ? '-$' : '$') + Math.abs(Math.round(v)).toLocaleString();
-      const formatValDec = (v) => (v < 0 ? '-$' : '$') + Math.abs(v).toFixed(2);
+      // Update Hero Grid Cards
+      document.getElementById('hero-daily-val').innerText = '$' + avgDaily.toFixed(2);
+      document.getElementById('hero-weekly-val').innerText = '$' + Math.round(avgWeekly).toLocaleString();
+      document.getElementById('hero-monthly-val').innerText = '$' + Math.round(avgMonthly).toLocaleString();
+      document.getElementById('hero-yearly-val').innerText = '$' + Math.round(avgYearly).toLocaleString();
 
-      document.getElementById('hero-daily-val').innerText = formatValDec(avgDaily);
-      document.getElementById('hero-weekly-val').innerText = formatVal(avgWeekly);
-      document.getElementById('hero-monthly-val').innerText = formatVal(avgMonthly);
-      document.getElementById('hero-yearly-val').innerText = formatVal(avgYearly);
-
-      document.getElementById('stat-bills').innerText = '$' + Math.round(totalBills).toLocaleString();
+      // Update Overview Stats
+      document.getElementById('stat-bills').innerText = '$' + Math.round(bills).toLocaleString();
       document.getElementById('stat-savings').innerText = '$' + Math.round(totalSavings).toLocaleString();
-      document.getElementById('stat-free').innerText = formatVal(totalDiscretionary);
+      document.getElementById('stat-free').innerText = '$' + Math.round(totalDiscretionary).toLocaleString();
 
       drawChart(weeklyFreeList, weeklySavings);
     }
@@ -488,70 +470,51 @@
       ctx.clearRect(0, 0, w, h);
       if (freeList.length < 1) return;
 
-      const allVals = [...freeList, ...savingsList, 0];
-      const maxVal = Math.max(...allVals) * 1.2 || 100;
-      const minVal = Math.min(...allVals) * 1.2 || -50;
+      const maxVal = Math.max(...freeList, ...savingsList) * 1.2 || 100;
 
       const numWeeks = freeList.length;
       const sectionWidth = (w - 2 * padding) / numWeeks;
       const barWidth = Math.min(25, sectionWidth / 3);
 
-      // Zero baseline coordinate
-      const zeroY = h - padding - ((0 - minVal) / (maxVal - minVal)) * (h - 2 * padding);
-
-      // Draw zero axis line
-      ctx.strokeStyle = '#cbd5e1';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(padding, zeroY);
-      ctx.lineTo(w - padding, zeroY);
-      ctx.stroke();
-
       freeList.forEach((freeVal, i) => {
         const savVal = savingsList[i];
         const xCenter = padding + i * sectionWidth + sectionWidth / 2;
 
-        // Free cash bar
-        const freeY = h - padding - ((freeVal - minVal) / (maxVal - minVal)) * (h - 2 * padding);
-        const freeH = Math.abs(freeY - zeroY);
-        ctx.fillStyle = freeVal >= 0 ? '#8b5cf6' : '#ef4444';
-        ctx.fillRect(xCenter - barWidth - 2, freeVal >= 0 ? freeY : zeroY, barWidth, Math.max(2, freeH));
+        const freeH = (freeVal / maxVal) * (h - 2 * padding);
+        const freeY = h - padding - freeH;
+        ctx.fillStyle = '#8b5cf6';
+        ctx.fillRect(xCenter - barWidth - 2, freeY, barWidth, freeH);
 
-        // Savings bar
-        const savY = h - padding - ((savVal - minVal) / (maxVal - minVal)) * (h - 2 * padding);
-        const savH = Math.abs(savY - zeroY);
+        const savH = (savVal / maxVal) * (h - 2 * padding);
+        const savY = h - padding - savH;
         ctx.fillStyle = '#10b981';
-        ctx.fillRect(xCenter + 2, savVal >= 0 ? savY : zeroY, barWidth, Math.max(2, savH));
+        ctx.fillRect(xCenter + 2, savY, barWidth, savH);
 
         ctx.fillStyle = '#64748b';
         ctx.font = '10px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('W' + (i + 1), xCenter, h - 6);
+        ctx.fillText('W' + (i + 1), xCenter, h - 10);
       });
 
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'left';
       ctx.fillStyle = '#8b5cf6';
-      ctx.fillRect(padding, 6, 8, 8);
-      ctx.fillText('Free Cash', padding + 12, 13);
+      ctx.fillRect(padding, 10, 8, 8);
+      ctx.fillText('Weekly Free Cash', padding + 12, 17);
 
       ctx.fillStyle = '#10b981';
-      ctx.fillRect(padding + 80, 6, 8, 8);
-      ctx.fillText('Savings', padding + 92, 13);
+      ctx.fillRect(padding + 120, 10, 8, 8);
+      ctx.fillText('Weekly Savings', padding + 132, 17);
     }
 
     function exportData() {
       const data = {
         income: document.getElementById('income-input').value,
-        weeks: document.getElementById('weeks-input').value,
-        elec: document.getElementById('bill-elec').value,
-        gas: document.getElementById('bill-gas').value,
-        water: document.getElementById('bill-water').value,
-        internet: document.getElementById('bill-internet').value,
+        bills: document.getElementById('bills-input').value,
         goal: document.getElementById('goal-input').value,
+        weeks: document.getElementById('weeks-input').value,
         weeklySavings: weeklySavings
       };
-      
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -564,18 +527,14 @@
     function importData(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const data = JSON.parse(e.target.result);
           if (data.income !== undefined) document.getElementById('income-input').value = data.income;
-          if (data.weeks !== undefined) document.getElementById('weeks-input').value = data.weeks;
-          if (data.elec !== undefined) document.getElementById('bill-elec').value = data.elec;
-          if (data.gas !== undefined) document.getElementById('bill-gas').value = data.gas;
-          if (data.water !== undefined) document.getElementById('bill-water').value = data.water;
-          if (data.internet !== undefined) document.getElementById('bill-internet').value = data.internet;
+          if (data.bills !== undefined) document.getElementById('bills-input').value = data.bills;
           if (data.goal !== undefined) document.getElementById('goal-input').value = data.goal;
+          if (data.weeks !== undefined) document.getElementById('weeks-input').value = data.weeks;
           if (data.weeklySavings && Array.isArray(data.weeklySavings)) {
             weeklySavings = data.weeklySavings;
           }
@@ -593,3 +552,4 @@
   </script>
 </body>
 </html>
+
