@@ -1,365 +1,595 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Safe-to-Spend Budget Calculator</title>
-    <style>
-        :root {
-            --primary: #7c3aed;
-            --primary-light: #8b5cf6;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --danger: #ef4444;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 16px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 520px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-        }
-
-        /* Top Summary Cards Grid */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .summary-box {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            color: white;
-            border-radius: 12px;
-            padding: 14px;
-            text-align: center;
-        }
-
-        .summary-box.secondary {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-        }
-
-        .summary-box .label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            opacity: 0.9;
-        }
-
-        .summary-box .value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        h2 {
-            font-size: 1.1rem;
-            color: var(--primary);
-            margin-top: 0;
-            margin-bottom: 14px;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 6px;
-        }
-
-        .input-group {
-            margin-bottom: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .input-label-wrap {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-group label {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-main);
-        }
-
-        .weekly-tag {
-            font-size: 0.75rem;
-            color: var(--primary);
-            font-weight: 600;
-            margin-top: 2px;
-        }
-
-        .input-group input {
-            width: 100px;
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            text-align: right;
-            background: #f1f5f9;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-        }
-
-        .category-section {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .category-title {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            letter-spacing: 0.03em;
-        }
-
-        .totals-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.95rem;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed var(--border);
-        }
-
-        .totals-row.final {
-            border-top: 2px solid var(--border);
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flexible Weekly Safe-to-Spend Generator</title>
+  <style>
+    :root {
+      --primary: #8b5cf6;
+      --primary-dark: #6d28d9;
+      --secondary: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 650px;
+      width: 100%;
+      background: var(--card);
+      padding: 22px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      font-size: 1.35rem;
+      margin-top: 0;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 18px;
+    }
+    .hero-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    @media (min-width: 480px) {
+      .hero-stat-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    .hero-card {
+      background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 14px 8px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    }
+    .hero-card .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.9;
+    }
+    .hero-card .val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+    .input-section {
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .section-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .input-sublabel {
+      font-size: 0.75rem;
+      color: var(--primary);
+      margin-top: -6px;
+      margin-bottom: 4px;
+    }
+    .input-with-val {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    input[type="number"] {
+      width: 80px;
+      padding: 5px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-align: right;
+      background: #ffffff;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #e2e8f0;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .table-container {
+      max-height: 280px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: #f8fafc;
+      padding: 10px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+    .stat-lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    canvas {
+      width: 100%;
+      height: 150px;
+      background: #fafafa;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Flexible Weekly Safe-to-Spend</h1>
+    <div class="subtitle">Track balances and sync data seamlessly across devices.</div>
 
-<div class="container">
-    <!-- Top Summary Averages -->
-    <div class="summary-grid">
-        <div class="summary-box">
-            <div class="label">Daily Avg (Free)</div>
-            <div class="value" id="dispDaily">$0.00</div>
-        </div>
-        <div class="summary-box">
-            <div class="label">Weekly Avg (Free)</div>
-            <div class="value" id="dispWeekly">$0.00</div>
-        </div>
-        <div class="summary-box secondary">
-            <div class="label">Monthly Avg (Free)</div>
-            <div class="value" id="dispMonthly">$0.00</div>
-        </div>
-        <div class="summary-box secondary">
-            <div class="label">Yearly Avg (Free)</div>
-            <div class="value" id="dispYearly">$0.00</div>
-        </div>
+    <!-- 4-Card Averages Hero Grid -->
+    <div class="hero-stat-grid">
+      <div class="hero-card">
+        <div class="label">Daily Avg (Free)</div>
+        <div class="val" id="hero-daily-val">$0.00</div>
+      </div>
+      <div class="hero-card">
+        <div class="label">Weekly Avg (Free)</div>
+        <div class="val" id="hero-weekly-val">$0.00</div>
+      </div>
+      <div class="hero-card">
+        <div class="label">Monthly Avg (Free)</div>
+        <div class="val" id="hero-monthly-val">$0.00</div>
+      </div>
+      <div class="hero-card">
+        <div class="label">Yearly Avg (Free)</div>
+        <div class="val" id="hero-yearly-val">$0.00</div>
+      </div>
     </div>
 
-    <!-- 1. Income Settings -->
-    <div class="card">
-        <h2>1. Income & Cycle Settings</h2>
-        <div class="input-group">
-            <div class="input-label-wrap">
-                <label>Cycle Net Income ($)</label>
-                <span class="weekly-tag" id="netWeeklyTag">($180.00 / wk)</span>
-            </div>
-            <input type="number" id="netIncome" value="720" oninput="calculateBudget()">
-        </div>
-        <div class="input-group">
-            <div class="input-label-wrap">
-                <label>Cycle Length (Weeks)</label>
-            </div>
-            <input type="number" id="cycleWeeks" value="4" min="1" max="12" oninput="calculateBudget()">
-        </div>
+    <!-- 1. Income & Cycle Settings -->
+    <div class="input-section" style="border-left: 4px solid var(--primary);">
+      <div class="section-title" style="color: var(--primary);">1. Income & Cycle Settings</div>
+      <div class="input-row">
+        <span>Cycle Net Income ($)</span>
+        <div class="input-with-val"><input type="number" id="income-input" value="720" min="0" step="10" oninput="calculate()"></div>
+      </div>
+      <div class="input-sublabel" id="income-weekly-sub">($180.00 / wk)</div>
+
+      <div class="input-row">
+        <span>Cycle Length (Weeks)</span>
+        <div class="input-with-val"><input type="number" id="weeks-input" value="4" min="1" max="12" step="1" onchange="buildTable()"></div>
+      </div>
     </div>
 
-    <!-- 2. Editable Categories -->
-    <div class="card">
-        <h2>2. Expenses & Savings Allocations</h2>
-        
-        <div class="category-section">
-            <div class="category-title">Utilities & Bills (Per Cycle)</div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>Electricity</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="125" oninput="calculateBudget()">
-            </div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>House Gas Bill</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="40" oninput="calculateBudget()">
-            </div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>Water (Quarterly/Cycle)</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="30" oninput="calculateBudget()">
-            </div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>Internet</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="45" oninput="calculateBudget()">
-            </div>
-        </div>
+    <!-- 2. Expenses & Savings Allocations -->
+    <div class="input-section" style="border-left: 4px solid var(--secondary);">
+      <div class="section-title" style="color: var(--secondary);">2. Expenses & Savings Allocations</div>
+      
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 4px;">UTILITIES & BILLS (PER CYCLE)</div>
+      
+      <div class="input-row">
+        <span>Electricity</span>
+        <div class="input-with-val"><input type="number" id="bill-elec" value="125" min="0" step="1" oninput="calculate()"></div>
+      </div>
+      <div class="input-sublabel" id="sub-elec">($31.25 / wk)</div>
 
-        <div class="category-section">
-            <div class="category-title">Essential Expenses (Per Cycle)</div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>Car Gas</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="200" oninput="calculateBudget()">
-            </div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>Food / Groceries</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="100" oninput="calculateBudget()">
-            </div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>Cat Food & Care</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="100" oninput="calculateBudget()">
-            </div>
-        </div>
+      <div class="input-row">
+        <span>House Gas Bill</span>
+        <div class="input-with-val"><input type="number" id="bill-gas" value="40" min="0" step="1" oninput="calculate()"></div>
+      </div>
+      <div class="input-sublabel" id="sub-gas">($10.00 / wk)</div>
 
-        <div class="category-section">
-            <div class="category-title">Savings Goals (Per Cycle)</div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>Vacation Savings</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="80" oninput="calculateBudget()">
-            </div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>1099 Tax Savings</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="40" oninput="calculateBudget()">
-            </div>
-            <div class="input-group">
-                <div class="input-label-wrap">
-                    <label>Laptop Savings</label>
-                    <span class="weekly-tag">($0.00 / wk)</span>
-                </div>
-                <input type="number" class="expense-input" value="0" oninput="calculateBudget()">
-            </div>
-        </div>
+      <div class="input-row">
+        <span>Water (Quarterly/Cycle)</span>
+        <div class="input-with-val"><input type="number" id="bill-water" value="30" min="0" step="1" oninput="calculate()"></div>
+      </div>
+      <div class="input-sublabel" id="sub-water">($7.50 / wk)</div>
+
+      <div class="input-row">
+        <span>Internet</span>
+        <div class="input-with-val"><input type="number" id="bill-internet" value="45" min="0" step="1" oninput="calculate()"></div>
+      </div>
+      <div class="input-sublabel" id="sub-internet">($11.25 / wk)</div>
+
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 10px;">SAVINGS TARGET GOAL</div>
+      <div class="input-row">
+        <span>Overall Savings Goal ($)</span>
+        <div class="input-with-val"><input type="number" id="goal-input" value="100" min="0" step="1" oninput="syncGoalToWeeks()"></div>
+      </div>
+      <div class="btn-group" style="margin-top: 8px;">
+        <button class="btn btn-primary" onclick="distributeEvenly()">Split Goal Evenly</button>
+        <button class="btn" onclick="clearSavings()">Reset Savings to $0</button>
+      </div>
     </div>
 
-    <!-- 3. Summary Totals Card -->
-    <div class="card">
-        <h2>3. Cycle Totals & Summary</h2>
-        <div class="totals-row">
-            <span>Total Cycle Net Income:</span>
-            <strong id="sumIncome">$720.00</strong>
-        </div>
-        <div class="totals-row">
-            <span>Total Expenses & Savings:</span>
-            <strong id="sumExpenses">$750.00</strong>
-        </div>
-        <div class="totals-row final">
-            <span>Free Spending Pool:</span>
-            <strong id="sumFreePool" style="color: var(--success);">$0.00</strong>
-        </div>
-        <div class="totals-row" style="margin-top: 10px; font-size: 1rem; color: var(--primary);">
-            <span>Combined Weekly Obligation:</span>
-            <strong id="sumWeeklyObligation">$0.00 / wk</strong>
-        </div>
+    <!-- Weekly Breakdown Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Savings ($)</th>
+            <th>Weekly Free Cash</th>
+            <th>Daily Limit</th>
+          </tr>
+        </thead>
+        <tbody id="weekly-tbody">
+          <!-- Dynamic Rows -->
+        </tbody>
+      </table>
     </div>
-</div>
 
-<script>
-    function calculateBudget() {
-        let netIncome = parseFloat(document.getElementById('netIncome').value) || 0;
-        let weeksCount = parseInt(document.getElementById('cycleWeeks').value) || 4;
+    <!-- Overview Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-lbl">Total Cycle Bills</div>
+        <div class="stat-val" id="stat-bills" style="color: var(--danger);">$0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Total Savings</div>
+        <div class="stat-val" id="stat-savings" style="color: var(--secondary);">$0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Free Spending Pool</div>
+        <div class="stat-val" id="stat-free" style="color: var(--primary);">$0</div>
+      </div>
+    </div>
 
-        // Update net weekly tag
-        let netWeekly = netIncome / weeksCount;
-        document.getElementById('netWeeklyTag').innerText = `($${netWeekly.toFixed(2)} / wk)`;
+    <canvas id="chart"></canvas>
 
-        // Sum all category input fields and update their individual weekly tags
-        let expenseInputs = document.querySelectorAll('.expense-input');
-        let totalExpenses = 0;
+    <!-- 3. Backup & Sync Options -->
+    <div class="input-section" style="border-left: 4px solid var(--warning); margin-top: 20px;">
+      <div class="section-title" style="color: var(--warning);">3. Cross-Device Backup & Sync</div>
+      <div style="font-size: 0.78rem; color: var(--text-muted);">Export your data to transfer your numbers to your phone or tablet, or import a saved backup file.</div>
+      <div class="btn-group">
+        <button class="btn" onclick="exportData()" style="background: #fef3c7; color: #92400e; font-weight: 700;">Export Data File</button>
+        <button class="btn" onclick="document.getElementById('import-file').click()" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">Import Data File</button>
+        <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importData(event)">
+      </div>
+    </div>
+  </div>
 
-        expenseInputs.forEach(input => {
-            let cycleVal = parseFloat(input.value) || 0;
-            totalExpenses += cycleVal;
+  <script>
+    let weeklySavings = [25, 25, 25, 25];
 
-            let weeklyVal = cycleVal / weeksCount;
-            let weeklyTag = input.parentElement.querySelector('.weekly-tag');
-            if (weeklyTag) {
-                weeklyTag.innerText = `($${weeklyVal.toFixed(2)} / wk)`;
-            }
-        });
+    function buildTable() {
+      const numWeeks = parseInt(document.getElementById('weeks-input').value) || 1;
+      const goal = parseFloat(document.getElementById('goal-input').value) || 0;
+      
+      const defaultVal = Math.round(goal / numWeeks);
+      while (weeklySavings.length < numWeeks) {
+        weeklySavings.push(defaultVal);
+      }
+      if (weeklySavings.length > numWeeks) {
+        weeklySavings = weeklySavings.slice(0, numWeeks);
+      }
 
-        let freeSpendingPool = netIncome - totalExpenses;
-        let weeklyFree = freeSpendingPool / weeksCount;
-        let dailyFree = weeklyFree / 7;
-        let monthlyFree = weeklyFree * 4.33;
-        let yearlyFree = weeklyFree * 52;
-
-        let weeklyObligation = totalExpenses / weeksCount;
-
-        // Update Top Summary Cards
-        document.getElementById('dispDaily').innerText = `$${dailyFree.toFixed(2)}`;
-        document.getElementById('dispWeekly').innerText = `$${weeklyFree.toFixed(2)}`;
-        document.getElementById('dispMonthly').innerText = `$${monthlyFree.toFixed(2)}`;
-        document.getElementById('dispYearly').innerText = `$${yearlyFree.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-
-        // Update Bottom Totals
-        document.getElementById('sumIncome').innerText = `$${netIncome.toFixed(2)}`;
-        document.getElementById('sumExpenses').innerText = `$${totalExpenses.toFixed(2)}`;
-        
-        let freePoolEl = document.getElementById('sumFreePool');
-        freePoolEl.innerText = `$${freeSpendingPool.toFixed(2)}`;
-        freePoolEl.style.color = freeSpendingPool < 0 ? 'var(--danger)' : 'var(--success)';
-
-        document.getElementById('sumWeeklyObligation').innerText = `$${weeklyObligation.toFixed(2)} / wk`;
+      renderRows();
+      calculate();
     }
 
-    // Run on page load to initialize values
-    calculateBudget();
-</script>
+    function renderRows() {
+      const tbody = document.getElementById('weekly-tbody');
+      tbody.innerHTML = '';
 
+      weeklySavings.forEach((val, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 600; color: var(--text-muted);">Week ${idx + 1}</td>
+          <td>$<input type="number" id="sav-input-${idx}" value="${val}" min="0" step="1" oninput="updateWeeklySav(${idx})"></td>
+          <td style="font-weight: 700; color: var(--primary);" id="week-free-${idx}">$0</td>
+          <td style="font-weight: 700; color: var(--secondary);" id="week-daily-${idx}">$0/day</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateWeeklySav(index) {
+      const input = document.getElementById(`sav-input-${index}`);
+      const val = parseFloat(input.value) || 0;
+      weeklySavings[index] = val;
+
+      const sumSavings = weeklySavings.reduce((a, b) => a + b, 0);
+      document.getElementById('goal-input').value = sumSavings;
+
+      calculate();
+    }
+
+    function syncGoalToWeeks() {
+      const goal = parseFloat(document.getElementById('goal-input').value) || 0;
+      const numWeeks = weeklySavings.length;
+      if (numWeeks <= 0) return;
+
+      const evenVal = Math.round(goal / numWeeks);
+      weeklySavings = weeklySavings.map(() => evenVal);
+      
+      weeklySavings.forEach((val, i) => {
+        const input = document.getElementById(`sav-input-${i}`);
+        if (input) input.value = val;
+      });
+
+      calculate();
+    }
+
+    function distributeEvenly() {
+      syncGoalToWeeks();
+    }
+
+    function clearSavings() {
+      document.getElementById('goal-input').value = 0;
+      weeklySavings = weeklySavings.map(() => 0);
+      weeklySavings.forEach((_, i) => {
+        const input = document.getElementById(`sav-input-${i}`);
+        if (input) input.value = 0;
+      });
+      calculate();
+    }
+
+    function calculate() {
+      const income = parseFloat(document.getElementById('income-input').value) || 0;
+      const numWeeks = weeklySavings.length || 1;
+
+      const elec = parseFloat(document.getElementById('bill-elec').value) || 0;
+      const gas = parseFloat(document.getElementById('bill-gas').value) || 0;
+      const water = parseFloat(document.getElementById('bill-water').value) || 0;
+      const internet = parseFloat(document.getElementById('bill-internet').value) || 0;
+
+      const totalBills = elec + gas + water + internet;
+
+      // Sub-label updates
+      document.getElementById('income-weekly-sub').innerText = `($${(income / numWeeks).toFixed(2)} / wk)`;
+      document.getElementById('sub-elec').innerText = `($${(elec / numWeeks).toFixed(2)} / wk)`;
+      document.getElementById('sub-gas').innerText = `($${(gas / numWeeks).toFixed(2)} / wk)`;
+      document.getElementById('sub-water').innerText = `($${(water / numWeeks).toFixed(2)} / wk)`;
+      document.getElementById('sub-internet').innerText = `($${(internet / numWeeks).toFixed(2)} / wk)`;
+
+      const weeklyBillsShare = totalBills / numWeeks;
+      const weeklyIncomeShare = income / numWeeks;
+
+      let totalSavings = 0;
+      let totalDiscretionary = 0;
+
+      const weeklyFreeList = [];
+
+      weeklySavings.forEach((savVal, idx) => {
+        totalSavings += savVal;
+        
+        const weekFree = weeklyIncomeShare - weeklyBillsShare - savVal;
+        const weekDaily = weekFree / 7;
+
+        weeklyFreeList.push(weekFree);
+        totalDiscretionary += weekFree;
+
+        const freeCell = document.getElementById(`week-free-${idx}`);
+        const dailyCell = document.getElementById(`week-daily-${idx}`);
+
+        if (freeCell) {
+          freeCell.innerText = (weekFree < 0 ? '-$' : '$') + Math.abs(Math.round(weekFree)).toLocaleString();
+          freeCell.style.color = weekFree < 0 ? 'var(--danger)' : 'var(--primary)';
+        }
+        if (dailyCell) {
+          dailyCell.innerText = (weekDaily < 0 ? '-$' : '$') + Math.abs(weekDaily).toFixed(2) + '/day';
+          dailyCell.style.color = weekDaily < 0 ? 'var(--danger)' : 'var(--secondary)';
+        }
+      });
+
+      const avgWeekly = totalDiscretionary / numWeeks;
+      const avgDaily = avgWeekly / 7;
+      const avgMonthly = avgDaily * 30.4375;
+      const avgYearly = avgDaily * 365;
+
+      const formatVal = (v) => (v < 0 ? '-$' : '$') + Math.abs(Math.round(v)).toLocaleString();
+      const formatValDec = (v) => (v < 0 ? '-$' : '$') + Math.abs(v).toFixed(2);
+
+      document.getElementById('hero-daily-val').innerText = formatValDec(avgDaily);
+      document.getElementById('hero-weekly-val').innerText = formatVal(avgWeekly);
+      document.getElementById('hero-monthly-val').innerText = formatVal(avgMonthly);
+      document.getElementById('hero-yearly-val').innerText = formatVal(avgYearly);
+
+      document.getElementById('stat-bills').innerText = '$' + Math.round(totalBills).toLocaleString();
+      document.getElementById('stat-savings').innerText = '$' + Math.round(totalSavings).toLocaleString();
+      document.getElementById('stat-free').innerText = formatVal(totalDiscretionary);
+
+      drawChart(weeklyFreeList, weeklySavings);
+    }
+
+    function drawChart(freeList, savingsList) {
+      const canvas = document.getElementById('chart');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const padding = 30;
+
+      ctx.clearRect(0, 0, w, h);
+      if (freeList.length < 1) return;
+
+      const allVals = [...freeList, ...savingsList, 0];
+      const maxVal = Math.max(...allVals) * 1.2 || 100;
+      const minVal = Math.min(...allVals) * 1.2 || -50;
+
+      const numWeeks = freeList.length;
+      const sectionWidth = (w - 2 * padding) / numWeeks;
+      const barWidth = Math.min(25, sectionWidth / 3);
+
+      // Zero baseline coordinate
+      const zeroY = h - padding - ((0 - minVal) / (maxVal - minVal)) * (h - 2 * padding);
+
+      // Draw zero axis line
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding, zeroY);
+      ctx.lineTo(w - padding, zeroY);
+      ctx.stroke();
+
+      freeList.forEach((freeVal, i) => {
+        const savVal = savingsList[i];
+        const xCenter = padding + i * sectionWidth + sectionWidth / 2;
+
+        // Free cash bar
+        const freeY = h - padding - ((freeVal - minVal) / (maxVal - minVal)) * (h - 2 * padding);
+        const freeH = Math.abs(freeY - zeroY);
+        ctx.fillStyle = freeVal >= 0 ? '#8b5cf6' : '#ef4444';
+        ctx.fillRect(xCenter - barWidth - 2, freeVal >= 0 ? freeY : zeroY, barWidth, Math.max(2, freeH));
+
+        // Savings bar
+        const savY = h - padding - ((savVal - minVal) / (maxVal - minVal)) * (h - 2 * padding);
+        const savH = Math.abs(savY - zeroY);
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(xCenter + 2, savVal >= 0 ? savY : zeroY, barWidth, Math.max(2, savH));
+
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('W' + (i + 1), xCenter, h - 6);
+      });
+
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#8b5cf6';
+      ctx.fillRect(padding, 6, 8, 8);
+      ctx.fillText('Free Cash', padding + 12, 13);
+
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(padding + 80, 6, 8, 8);
+      ctx.fillText('Savings', padding + 92, 13);
+    }
+
+    function exportData() {
+      const data = {
+        income: document.getElementById('income-input').value,
+        weeks: document.getElementById('weeks-input').value,
+        elec: document.getElementById('bill-elec').value,
+        gas: document.getElementById('bill-gas').value,
+        water: document.getElementById('bill-water').value,
+        internet: document.getElementById('bill-internet').value,
+        goal: document.getElementById('goal-input').value,
+        weeklySavings: weeklySavings
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'safe-to-spend-backup.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.income !== undefined) document.getElementById('income-input').value = data.income;
+          if (data.weeks !== undefined) document.getElementById('weeks-input').value = data.weeks;
+          if (data.elec !== undefined) document.getElementById('bill-elec').value = data.elec;
+          if (data.gas !== undefined) document.getElementById('bill-gas').value = data.gas;
+          if (data.water !== undefined) document.getElementById('bill-water').value = data.water;
+          if (data.internet !== undefined) document.getElementById('bill-internet').value = data.internet;
+          if (data.goal !== undefined) document.getElementById('goal-input').value = data.goal;
+          if (data.weeklySavings && Array.isArray(data.weeklySavings)) {
+            weeklySavings = data.weeklySavings;
+          }
+          buildTable();
+          alert('Data imported successfully!');
+        } catch (err) {
+          alert('Invalid backup file format.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    window.onload = buildTable;
+    window.onresize = calculate;
+  </script>
 </body>
 </html>
-
