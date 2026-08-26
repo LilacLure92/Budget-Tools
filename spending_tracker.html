@@ -186,7 +186,7 @@
         id: Date.now(),
         amount: amount,
         category: categorySelect.value,
-        label: "", // New property for labels
+        label: "",
         timestamp: new Date().toISOString(),
         dateFormatted: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       };
@@ -199,13 +199,29 @@
       const exp = expenses.find(e => e.id === id);
       if (!exp) return;
 
-      // 1. Edit Label
+      // 1. Edit Category
+      const newCat = prompt(`Edit Category (Current: ${exp.category})\nAvailable: ${categories.join(', ')}`, exp.category);
+      if (newCat !== null) {
+        const trimmedCat = newCat.trim();
+        if (categories.includes(trimmedCat)) {
+          exp.category = trimmedCat;
+        } else if (trimmedCat !== "") {
+          if(confirm(`"${trimmedCat}" is not an existing category. Add it as a new category?`)) {
+            categories.push(trimmedCat);
+            localStorage.setItem('quick_categories', JSON.stringify(categories));
+            updateCategoryDropdown();
+            exp.category = trimmedCat;
+          }
+        }
+      }
+
+      // 2. Edit Label
       const newLabel = prompt("Add or edit a label/note for this entry:", exp.label || "");
       if (newLabel !== null) {
         exp.label = newLabel.trim();
       }
 
-      // 2. Edit Date
+      // 3. Edit Date
       const currentD = new Date(exp.timestamp);
       const yyyy = currentD.getFullYear();
       const mm = String(currentD.getMonth() + 1).padStart(2, '0');
@@ -214,7 +230,6 @@
       
       const newDateStr = prompt("Edit date (YYYY-MM-DD):", defaultDate);
       if (newDateStr !== null && newDateStr.trim() !== "") {
-        // Appending T12:00:00 prevents timezone shift bugs when parsing dates
         const parsedDate = new Date(newDateStr + 'T12:00:00'); 
         if (!isNaN(parsedDate.getTime())) {
           exp.timestamp = parsedDate.toISOString();
