@@ -20,7 +20,6 @@
     .import-btn:hover {background-color: #6a3d78; }
     .totals-grid {display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     
-    /* Updated grid to hold 5 columns now */
     .time-grid {display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 15px; } 
     
     .total-box {background: #f0ebf5; padding: 10px 6px; border-radius: 8px; text-align: center; }
@@ -34,13 +33,13 @@
     .edit-cat-btn {color: #528699; }
     .delete-cat-btn {color: #cc4444; }
     
-    /* Updated grid to hold 5 columns now */
     .cat-stats {display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; text-align: center; font-size: 11px; color: #554863; }
     
     .cat-stats div span {display: block; font-size: 9px; color: #887a96; text-transform: uppercase; }
-    ul {list-style: none; padding: 0; margin: 0; max-height: 220px; overflow-y: auto; }
-    li {display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+    ul {list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+    li {display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
     .delete-btn {background: none; border: none; color: #cc4444; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; }
+    .edit-btn {background: none; border: none; color: #528699; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -66,7 +65,6 @@
     <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importBackup(event)">
   </div>
 
-  <!-- Time-Frame Breakdown Grid with Last Wk Added -->
   <div class="time-grid">
     <div class="total-box">
       <span>Week</span>
@@ -188,12 +186,45 @@
         id: Date.now(),
         amount: amount,
         category: categorySelect.value,
+        label: "", // New property for labels
         timestamp: new Date().toISOString(),
         dateFormatted: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       };
       expenses.unshift(expense);
       saveAndRender();
       amountInput.value = '';
+    }
+
+    function editExpense(id) {
+      const exp = expenses.find(e => e.id === id);
+      if (!exp) return;
+
+      // 1. Edit Label
+      const newLabel = prompt("Add or edit a label/note for this entry:", exp.label || "");
+      if (newLabel !== null) {
+        exp.label = newLabel.trim();
+      }
+
+      // 2. Edit Date
+      const currentD = new Date(exp.timestamp);
+      const yyyy = currentD.getFullYear();
+      const mm = String(currentD.getMonth() + 1).padStart(2, '0');
+      const dd = String(currentD.getDate()).padStart(2, '0');
+      const defaultDate = `${yyyy}-${mm}-${dd}`;
+      
+      const newDateStr = prompt("Edit date (YYYY-MM-DD):", defaultDate);
+      if (newDateStr !== null && newDateStr.trim() !== "") {
+        // Appending T12:00:00 prevents timezone shift bugs when parsing dates
+        const parsedDate = new Date(newDateStr + 'T12:00:00'); 
+        if (!isNaN(parsedDate.getTime())) {
+          exp.timestamp = parsedDate.toISOString();
+          exp.dateFormatted = parsedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        } else {
+          alert("Invalid date format. Please use YYYY-MM-DD.");
+        }
+      }
+      
+      saveAndRender();
     }
 
     function deleteExpense(id) {
@@ -247,7 +278,6 @@
       return th1.getFullYear() === th2.getFullYear() && th1.getMonth() === th2.getMonth() && Math.abs(th1 - th2) <= 6 * 86400000;
     }
 
-    // Helper logic to capture "Last Week" 
     function isLastWeek(date1, date2) {
       const oneWeekAgo = new Date(date2);
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -325,10 +355,17 @@
             catTotals[cat].year += amt;
           }
           
+          // Render label text if it exists
+          const labelHtml = exp.label ? ` <br><span style="color: #887a96; font-size: 11px;">(${exp.label})</span>` : '';
+          
           const li = document.createElement('li');
           li.innerHTML = `
-            <span><strong>${exp.dateFormatted}</strong> - ${exp.category}</span>
-            <span>$${amt.toFixed(2)} <button class="delete-btn" onclick="deleteExpense(${exp.id})">×</button></span>
+            <span style="flex: 1;"><strong>${exp.dateFormatted}</strong> - ${exp.category}${labelHtml}</span>
+            <span style="display: flex; align-items: center; gap: 4px;">
+              $${amt.toFixed(2)} 
+              <button class="edit-btn" onclick="editExpense(${exp.id})">✎</button>
+              <button class="delete-btn" onclick="deleteExpense(${exp.id})">×</button>
+            </span>
           `;
           listEl.appendChild(li);
         });
