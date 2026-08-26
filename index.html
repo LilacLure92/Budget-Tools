@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flexible Weekly Safe-to-Spend Generator</title>
+  <title>Master Budget & Safe-to-Spend Hub</title>
   <style>
     :root {
       --primary: #8b5cf6;
@@ -201,8 +201,8 @@
 </head>
 <body>
   <div class="container">
-    <h1>Flexible Weekly Safe-to-Spend</h1>
-    <div class="subtitle">Track balances and sync data seamlessly across devices.</div>
+    <h1>Master Budget Hub</h1>
+    <div class="subtitle">Your core cycle baseline, fixed expenses, and long-term averages.</div>
 
     <!-- 4-Card Averages Hero Grid -->
     <div class="hero-stat-grid">
@@ -241,9 +241,9 @@
 
     <!-- 2. Expenses & Savings Allocations -->
     <div class="input-section" style="border-left: 4px solid var(--secondary);">
-      <div class="section-title" style="color: var(--secondary);">2. Expenses & Savings Allocations</div>
+      <div class="section-title" style="color: var(--secondary);">2. Master Budget Categories</div>
       
-      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 4px;">BILLS & UTILITIES (PER CYCLE)</div>
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 4px;">BILLS, UTILITIES & ESSENTIALS (PER CYCLE)</div>
       
       <div class="input-row">
         <span>Electricity</span>
@@ -275,6 +275,12 @@
       </div>
       <div class="input-sublabel" id="sub-cargas">($12.50 / wk)</div>
 
+      <div class="input-row">
+        <span>Groceries</span>
+        <div class="input-with-val"><input type="number" id="bill-groceries" value="200" min="0" step="1" oninput="calculate()"></div>
+      </div>
+      <div class="input-sublabel" id="sub-groceries">($50.00 / wk)</div>
+
       <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 10px;">SAVINGS GOALS (PER CYCLE)</div>
       
       <div class="input-row">
@@ -291,7 +297,7 @@
 
     </div>
 
-    <!-- Weekly Breakdown Table -->
+    <!-- Cycle Breakdown Table -->
     <div class="table-container">
       <table>
         <thead>
@@ -329,10 +335,10 @@
     <!-- 3. Backup & Sync Options -->
     <div class="input-section" style="border-left: 4px solid var(--warning); margin-top: 20px;">
       <div class="section-title" style="color: var(--warning);">3. Cross-Device Backup & Sync</div>
-      <div style="font-size: 0.78rem; color: var(--text-muted);">Export your data to transfer your numbers to your phone or tablet, or import a saved backup file.</div>
+      <div style="font-size: 0.78rem; color: var(--text-muted);">Export your master budget file to transfer your core numbers to your phone or tablet, or import a backup file.</div>
       <div class="btn-group">
-        <button class="btn" onclick="exportData()" style="background: #fef3c7; color: #92400e; font-weight: 700;">Export Data File</button>
-        <button class="btn" onclick="document.getElementById('import-file').click()" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">Import Data File</button>
+        <button class="btn" onclick="exportData()" style="background: #fef3c7; color: #92400e; font-weight: 700;">Export Master Data</button>
+        <button class="btn" onclick="document.getElementById('import-file').click()" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">Import Master Data</button>
         <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importData(event)">
       </div>
     </div>
@@ -370,11 +376,12 @@
       const water = parseFloat(document.getElementById('bill-water').value) || 0;
       const internet = parseFloat(document.getElementById('bill-internet').value) || 0;
       const cargas = parseFloat(document.getElementById('bill-cargas').value) || 0;
+      const groceries = parseFloat(document.getElementById('bill-groceries').value) || 0;
 
       const sav1099 = parseFloat(document.getElementById('sav-1099').value) || 0;
       const savVacation = parseFloat(document.getElementById('sav-vacation').value) || 0;
 
-      const totalBills = elec + gas + water + internet + cargas;
+      const totalBills = elec + gas + water + internet + cargas + groceries;
       const totalSavings = sav1099 + savVacation;
 
       document.getElementById('income-weekly-sub').innerText = `($${(income / numWeeks).toFixed(2)} / wk)`;
@@ -383,6 +390,7 @@
       document.getElementById('sub-water').innerText = `($${(water / numWeeks).toFixed(2)} / wk)`;
       document.getElementById('sub-internet').innerText = `($${(internet / numWeeks).toFixed(2)} / wk)`;
       document.getElementById('sub-cargas').innerText = `($${(cargas / numWeeks).toFixed(2)} / wk)`;
+      document.getElementById('sub-groceries').innerText = `($${(groceries / numWeeks).toFixed(2)} / wk)`;
       document.getElementById('sub-1099').innerText = `($${(sav1099 / numWeeks).toFixed(2)} / wk)`;
       document.getElementById('sub-vacation').innerText = `($${(savVacation / numWeeks).toFixed(2)} / wk)`;
 
@@ -506,6 +514,7 @@
         water: document.getElementById('bill-water').value,
         internet: document.getElementById('bill-internet').value,
         cargas: document.getElementById('bill-cargas').value,
+        groceries: document.getElementById('bill-groceries').value,
         sav1099: document.getElementById('sav-1099').value,
         savVacation: document.getElementById('sav-vacation').value
       };
@@ -514,7 +523,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'safe-to-spend-backup.json';
+      a.download = 'master-budget-backup.json';
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -537,11 +546,12 @@
           if (data.water !== undefined) document.getElementById('bill-water').value = data.water;
           if (data.internet !== undefined) document.getElementById('bill-internet').value = data.internet;
           if (data.cargas !== undefined) document.getElementById('bill-cargas').value = data.cargas;
+          if (data.groceries !== undefined) document.getElementById('bill-groceries').value = data.groceries;
           if (data.sav1099 !== undefined) document.getElementById('sav-1099').value = data.sav1099;
           if (data.savVacation !== undefined) document.getElementById('sav-vacation').value = data.savVacation;
           
           calculate();
-          alert('Data imported successfully!');
+          alert('Master budget data imported successfully!');
         } catch (err) {
           alert('Invalid backup file format.');
         }
