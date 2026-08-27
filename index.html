@@ -280,6 +280,12 @@
         <div class="input-with-val"><input type="number" id="bill-groceries" value="200" min="0" step="1" oninput="calculate()"></div>
       </div>
       <div class="input-sublabel" id="sub-groceries">($50.00 / wk)</div>
+      
+      <div class="input-row">
+        <span>Cat Food & Care</span>
+        <div class="input-with-val"><input type="number" id="bill-catfood" value="50" min="0" step="1" oninput="calculate()"></div>
+      </div>
+      <div class="input-sublabel" id="sub-catfood">($12.50 / wk)</div>
 
       <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 10px;">SAVINGS GOALS (PER CYCLE)</div>
       
@@ -377,11 +383,12 @@
       const internet = parseFloat(document.getElementById('bill-internet').value) || 0;
       const cargas = parseFloat(document.getElementById('bill-cargas').value) || 0;
       const groceries = parseFloat(document.getElementById('bill-groceries').value) || 0;
+      const catfood = parseFloat(document.getElementById('bill-catfood').value) || 0;
 
       const sav1099 = parseFloat(document.getElementById('sav-1099').value) || 0;
       const savVacation = parseFloat(document.getElementById('sav-vacation').value) || 0;
 
-      const totalBills = elec + gas + water + internet + cargas + groceries;
+      const totalBills = elec + gas + water + internet + cargas + groceries + catfood;
       const totalSavings = sav1099 + savVacation;
 
       document.getElementById('income-weekly-sub').innerText = `($${(income / numWeeks).toFixed(2)} / wk)`;
@@ -391,6 +398,7 @@
       document.getElementById('sub-internet').innerText = `($${(internet / numWeeks).toFixed(2)} / wk)`;
       document.getElementById('sub-cargas').innerText = `($${(cargas / numWeeks).toFixed(2)} / wk)`;
       document.getElementById('sub-groceries').innerText = `($${(groceries / numWeeks).toFixed(2)} / wk)`;
+      document.getElementById('sub-catfood').innerText = `($${(catfood / numWeeks).toFixed(2)} / wk)`;
       document.getElementById('sub-1099').innerText = `($${(sav1099 / numWeeks).toFixed(2)} / wk)`;
       document.getElementById('sub-vacation').innerText = `($${(savVacation / numWeeks).toFixed(2)} / wk)`;
 
@@ -515,6 +523,7 @@
         internet: document.getElementById('bill-internet').value,
         cargas: document.getElementById('bill-cargas').value,
         groceries: document.getElementById('bill-groceries').value,
+        catfood: document.getElementById('bill-catfood').value,
         sav1099: document.getElementById('sav-1099').value,
         savVacation: document.getElementById('sav-vacation').value
       };
@@ -547,6 +556,7 @@
           if (data.internet !== undefined) document.getElementById('bill-internet').value = data.internet;
           if (data.cargas !== undefined) document.getElementById('bill-cargas').value = data.cargas;
           if (data.groceries !== undefined) document.getElementById('bill-groceries').value = data.groceries;
+          if (data.catfood !== undefined) document.getElementById('bill-catfood').value = data.catfood;
           if (data.sav1099 !== undefined) document.getElementById('sav-1099').value = data.sav1099;
           if (data.savVacation !== undefined) document.getElementById('sav-vacation').value = data.savVacation;
           
