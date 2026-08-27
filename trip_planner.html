@@ -41,8 +41,9 @@
     .category-body { padding: 16px; }
     .slider-row { margin-bottom: 20px; }
     .slider-row:last-child { margin-bottom: 0; }
-    .slider-labels { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
-    .slider-labels .val { font-weight: 600; }
+    .slider-labels { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 8px; }
+    .num-input-wrap { display: flex; align-items: center; gap: 2px; }
+    .num-input-wrap input[type="number"] { width: 80px; padding: 4px 6px; font-size: 14px; font-weight: 600; border: 1px solid var(--border); border-radius: 6px; text-align: right; background: #fff; }
     input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #e0e0e0; border-radius: 4px; outline: none; }
     input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
     .footer-note { padding: 16px 24px; font-size: 12px; color: var(--text-muted); text-align: center; background: #fdfdfd; border-top: 1px solid var(--border); }
@@ -91,16 +92,25 @@
         </div>
         <div class="category-body">
           <div class="slider-row">
-            <div class="slider-labels"><span>Entire Home / Condo</span><span class="val" id="val_airbnb">$510</span></div>
-            <input type="range" id="airbnb" min="300" max="1200" step="30" value="510" oninput="update()">
+            <div class="slider-labels">
+              <span>Entire Home / Condo</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="airbnb" min="0" max="5000" step="10" value="510" oninput="syncInput('airbnb')"></div>
+            </div>
+            <input type="range" id="airbnb_slider" min="300" max="1200" step="30" value="510" oninput="syncSlider('airbnb')">
           </div>
           <div class="slider-row">
-            <div class="slider-labels"><span>Cleaning & Service Fees</span><span class="val" id="val_cleaning">$140</span></div>
-            <input type="range" id="cleaning" min="50" max="300" step="10" value="140" oninput="update()">
+            <div class="slider-labels">
+              <span>Cleaning & Service Fees</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="cleaning" min="0" max="1000" step="10" value="140" oninput="syncInput('cleaning')"></div>
+            </div>
+            <input type="range" id="cleaning_slider" min="50" max="300" step="10" value="140" oninput="syncSlider('cleaning')">
           </div>
           <div class="slider-row">
-            <div class="slider-labels"><span>Overnight Parking</span><span class="val" id="val_parking">$90</span></div>
-            <input type="range" id="parking" min="0" max="200" step="10" value="90" oninput="update()">
+            <div class="slider-labels">
+              <span>Overnight Parking</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="parking" min="0" max="500" step="10" value="90" oninput="syncInput('parking')"></div>
+            </div>
+            <input type="range" id="parking_slider" min="0" max="200" step="10" value="90" oninput="syncSlider('parking')">
           </div>
         </div>
       </div>
@@ -113,16 +123,25 @@
         </div>
         <div class="category-body">
           <div class="slider-row">
-            <div class="slider-labels"><span>Grocery / Breakfast Stock</span><span class="val" id="val_grocery">$75</span></div>
-            <input type="range" id="grocery" min="30" max="200" step="15" value="75" oninput="update()">
+            <div class="slider-labels">
+              <span>Grocery / Breakfast Stock</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="grocery" min="0" max="1000" step="5" value="75" oninput="syncInput('grocery')"></div>
+            </div>
+            <input type="range" id="grocery_slider" min="30" max="200" step="15" value="75" oninput="syncSlider('grocery')">
           </div>
           <div class="slider-row">
-            <div class="slider-labels"><span>Special Dinner</span><span class="val" id="val_nyedinner">$240</span></div>
-            <input type="range" id="nyedinner" min="100" max="500" step="20" value="240" oninput="update()">
+            <div class="slider-labels">
+              <span>Special Dinner</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="nyedinner" min="0" max="1500" step="10" value="240" oninput="syncInput('nyedinner')"></div>
+            </div>
+            <input type="range" id="nyedinner_slider" min="100" max="500" step="20" value="240" oninput="syncSlider('nyedinner')">
           </div>
           <div class="slider-row">
-            <div class="slider-labels"><span>Lunches & Casual Dining</span><span class="val" id="val_dining">$180</span></div>
-            <input type="range" id="dining" min="80" max="400" step="20" value="180" oninput="update()">
+            <div class="slider-labels">
+              <span>Lunches & Casual Dining</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="dining" min="0" max="1500" step="10" value="180" oninput="syncInput('dining')"></div>
+            </div>
+            <input type="range" id="dining_slider" min="80" max="400" step="20" value="180" oninput="syncSlider('dining')">
           </div>
         </div>
       </div>
@@ -135,16 +154,25 @@
         </div>
         <div class="category-body">
           <div class="slider-row">
-            <div class="slider-labels"><span>Gas & Highway Tolls</span><span class="val" id="val_gas">$90</span></div>
-            <input type="range" id="gas" min="40" max="250" step="10" value="90" oninput="update()">
+            <div class="slider-labels">
+              <span>Gas & Highway Tolls</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="gas" min="0" max="1000" step="10" value="90" oninput="syncInput('gas')"></div>
+            </div>
+            <input type="range" id="gas_slider" min="40" max="250" step="10" value="90" oninput="syncSlider('gas')">
           </div>
           <div class="slider-row">
-            <div class="slider-labels"><span>Bus/Train/Plane Tickets</span><span class="val" id="val_tickets">$0</span></div>
-            <input type="range" id="tickets" min="0" max="1000" step="10" value="0" oninput="update()">
+            <div class="slider-labels">
+              <span>Bus/Train/Plane Tickets</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="tickets" min="0" max="3000" step="10" value="0" oninput="syncInput('tickets')"></div>
+            </div>
+            <input type="range" id="tickets_slider" min="0" max="1000" step="10" value="0" oninput="syncSlider('tickets')">
           </div>
           <div class="slider-row">
-            <div class="slider-labels"><span>Shopping</span><span class="val" id="val_shopping">$200</span></div>
-            <input type="range" id="shopping" min="0" max="600" step="50" value="200" oninput="update()">
+            <div class="slider-labels">
+              <span>Shopping</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="shopping" min="0" max="2500" step="10" value="200" oninput="syncInput('shopping')"></div>
+            </div>
+            <input type="range" id="shopping_slider" min="0" max="600" step="50" value="200" oninput="syncSlider('shopping')">
           </div>
         </div>
       </div>
@@ -173,16 +201,38 @@
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
     };
 
+    const ids = ['airbnb', 'cleaning', 'parking', 'grocery', 'nyedinner', 'dining', 'gas', 'tickets', 'shopping'];
+
+    function syncInput(id) {
+      const numInput = document.getElementById(id);
+      const slider = document.getElementById(id + '_slider');
+      let val = parseFloat(numInput.value);
+      if (isNaN(val)) val = 0;
+      if (slider) slider.value = val;
+      update();
+    }
+
+    function syncSlider(id) {
+      const numInput = document.getElementById(id);
+      const slider = document.getElementById(id + '_slider');
+      if (numInput && slider) {
+        numInput.value = slider.value;
+      }
+      update();
+    }
+
     function update() {
       const targetIncome = parseFloat(document.getElementById('targetIncome').value) || 0;
-      const ids = ['airbnb', 'cleaning', 'parking', 'grocery', 'nyedinner', 'dining', 'gas', 'tickets', 'shopping'];
       let totalCombined = 0;
       
       ids.forEach(id => {
-        const val = parseFloat(document.getElementById(id).value) || 0;
+        const numInput = document.getElementById(id);
+        const slider = document.getElementById(id + '_slider');
+        const val = parseFloat(numInput.value) || 0;
         totalCombined += val;
-        const el = document.getElementById('val_' + id);
-        if (el) el.innerText = formatMoney(val);
+        if (slider && parseFloat(slider.value) !== val) {
+          slider.value = val;
+        }
       });
 
       const myShare = totalCombined / 2;
@@ -213,11 +263,10 @@
     function exportData() {
       const data = {
         targetIncome: document.getElementById('targetIncome').value,
-        sliders: {}
+        values: {}
       };
-      const ids = ['airbnb', 'cleaning', 'parking', 'grocery', 'nyedinner', 'dining', 'gas', 'tickets', 'shopping'];
       ids.forEach(id => {
-        data.sliders[id] = document.getElementById(id).value;
+        data.values[id] = document.getElementById(id).value;
       });
 
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -239,9 +288,11 @@
           if (data.targetIncome !== undefined) {
             document.getElementById('targetIncome').value = data.targetIncome;
           }
-          if (data.sliders) {
-            for (const [id, val] of Object.entries(data.sliders)) {
-              const slider = document.getElementById(id);
+          if (data.values) {
+            for (const [id, val] of Object.entries(data.values)) {
+              const numInput = document.getElementById(id);
+              const slider = document.getElementById(id + '_slider');
+              if (numInput) numInput.value = val;
               if (slider) slider.value = val;
             }
           }
