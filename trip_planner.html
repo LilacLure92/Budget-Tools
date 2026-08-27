@@ -179,11 +179,45 @@
           </div>
           <div class="slider-row">
             <div class="slider-labels">
+              <span>Car Rental</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="carrental" min="0" max="2000" step="10" value="0" oninput="syncInput('carrental')"></div>
+            </div>
+            <input type="range" id="carrental_slider" min="0" max="1000" step="20" value="0" oninput="syncSlider('carrental')">
+            <div class="item-share">Your 50% share: <span id="share_carrental">$0</span></div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-labels">
               <span>Shopping</span>
               <div class="num-input-wrap"><span>$</span><input type="number" id="shopping" min="0" max="2500" step="10" value="200" oninput="syncInput('shopping')"></div>
             </div>
             <input type="range" id="shopping_slider" min="0" max="600" step="50" value="200" oninput="syncSlider('shopping')">
             <div class="item-share">Your 50% share: <span id="share_shopping">$0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Events & Activities Category -->
+      <div class="category">
+        <div class="category-header">
+          <div class="dot" style="background-color: var(--danger);"></div>
+          Events & Activities
+        </div>
+        <div class="category-body">
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span>Tours & Excursions</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="tours" min="0" max="1000" step="10" value="100" oninput="syncInput('tours')"></div>
+            </div>
+            <input type="range" id="tours_slider" min="0" max="500" step="10" value="100" oninput="syncSlider('tours')">
+            <div class="item-share">Your 50% share: <span id="share_tours">$0</span></div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span>Shows & Entertainment</span>
+              <div class="num-input-wrap"><span>$</span><input type="number" id="entertainment" min="0" max="1000" step="10" value="100" oninput="syncInput('entertainment')"></div>
+            </div>
+            <input type="range" id="entertainment_slider" min="0" max="500" step="10" value="100" oninput="syncSlider('entertainment')">
+            <div class="item-share">Your 50% share: <span id="share_entertainment">$0</span></div>
           </div>
         </div>
       </div>
@@ -212,7 +246,7 @@
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
     };
 
-    const ids = ['airbnb', 'cleaning', 'parking', 'grocery', 'nyedinner', 'dining', 'gas', 'tickets', 'shopping'];
+    const ids = ['airbnb', 'cleaning', 'parking', 'grocery', 'nyedinner', 'dining', 'gas', 'tickets', 'carrental', 'shopping', 'tours', 'entertainment'];
 
     function syncInput(id) {
       const numInput = document.getElementById(id);
@@ -246,7 +280,6 @@
           slider.value = val;
         }
 
-        // Update individual item share display
         const shareEl = document.getElementById('share_' + id);
         if (shareEl) {
           shareEl.innerText = formatMoney(val / 2);
