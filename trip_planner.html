@@ -41,7 +41,9 @@
     .category-body { padding: 16px; }
     .slider-row { margin-bottom: 20px; }
     .slider-row:last-child { margin-bottom: 0; }
-    .slider-labels { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 8px; }
+    .slider-labels { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 6px; }
+    .item-share { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .item-share span { font-weight: 600; color: var(--primary); }
     .num-input-wrap { display: flex; align-items: center; gap: 2px; }
     .num-input-wrap input[type="number"] { width: 80px; padding: 4px 6px; font-size: 14px; font-weight: 600; border: 1px solid var(--border); border-radius: 6px; text-align: right; background: #fff; }
     input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #e0e0e0; border-radius: 4px; outline: none; }
@@ -97,6 +99,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="airbnb" min="0" max="5000" step="10" value="510" oninput="syncInput('airbnb')"></div>
             </div>
             <input type="range" id="airbnb_slider" min="300" max="1200" step="30" value="510" oninput="syncSlider('airbnb')">
+            <div class="item-share">Your 50% share: <span id="share_airbnb">$0</span></div>
           </div>
           <div class="slider-row">
             <div class="slider-labels">
@@ -104,6 +107,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="cleaning" min="0" max="1000" step="10" value="140" oninput="syncInput('cleaning')"></div>
             </div>
             <input type="range" id="cleaning_slider" min="50" max="300" step="10" value="140" oninput="syncSlider('cleaning')">
+            <div class="item-share">Your 50% share: <span id="share_cleaning">$0</span></div>
           </div>
           <div class="slider-row">
             <div class="slider-labels">
@@ -111,6 +115,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="parking" min="0" max="500" step="10" value="90" oninput="syncInput('parking')"></div>
             </div>
             <input type="range" id="parking_slider" min="0" max="200" step="10" value="90" oninput="syncSlider('parking')">
+            <div class="item-share">Your 50% share: <span id="share_parking">$0</span></div>
           </div>
         </div>
       </div>
@@ -128,6 +133,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="grocery" min="0" max="1000" step="5" value="75" oninput="syncInput('grocery')"></div>
             </div>
             <input type="range" id="grocery_slider" min="30" max="200" step="15" value="75" oninput="syncSlider('grocery')">
+            <div class="item-share">Your 50% share: <span id="share_grocery">$0</span></div>
           </div>
           <div class="slider-row">
             <div class="slider-labels">
@@ -135,6 +141,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="nyedinner" min="0" max="1500" step="10" value="240" oninput="syncInput('nyedinner')"></div>
             </div>
             <input type="range" id="nyedinner_slider" min="100" max="500" step="20" value="240" oninput="syncSlider('nyedinner')">
+            <div class="item-share">Your 50% share: <span id="share_nyedinner">$0</span></div>
           </div>
           <div class="slider-row">
             <div class="slider-labels">
@@ -142,6 +149,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="dining" min="0" max="1500" step="10" value="180" oninput="syncInput('dining')"></div>
             </div>
             <input type="range" id="dining_slider" min="80" max="400" step="20" value="180" oninput="syncSlider('dining')">
+            <div class="item-share">Your 50% share: <span id="share_dining">$0</span></div>
           </div>
         </div>
       </div>
@@ -159,6 +167,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="gas" min="0" max="1000" step="10" value="90" oninput="syncInput('gas')"></div>
             </div>
             <input type="range" id="gas_slider" min="40" max="250" step="10" value="90" oninput="syncSlider('gas')">
+            <div class="item-share">Your 50% share: <span id="share_gas">$0</span></div>
           </div>
           <div class="slider-row">
             <div class="slider-labels">
@@ -166,6 +175,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="tickets" min="0" max="3000" step="10" value="0" oninput="syncInput('tickets')"></div>
             </div>
             <input type="range" id="tickets_slider" min="0" max="1000" step="10" value="0" oninput="syncSlider('tickets')">
+            <div class="item-share">Your 50% share: <span id="share_tickets">$0</span></div>
           </div>
           <div class="slider-row">
             <div class="slider-labels">
@@ -173,6 +183,7 @@
               <div class="num-input-wrap"><span>$</span><input type="number" id="shopping" min="0" max="2500" step="10" value="200" oninput="syncInput('shopping')"></div>
             </div>
             <input type="range" id="shopping_slider" min="0" max="600" step="50" value="200" oninput="syncSlider('shopping')">
+            <div class="item-share">Your 50% share: <span id="share_shopping">$0</span></div>
           </div>
         </div>
       </div>
@@ -230,8 +241,15 @@
         const slider = document.getElementById(id + '_slider');
         const val = parseFloat(numInput.value) || 0;
         totalCombined += val;
+        
         if (slider && parseFloat(slider.value) !== val) {
           slider.value = val;
+        }
+
+        // Update individual item share display
+        const shareEl = document.getElementById('share_' + id);
+        if (shareEl) {
+          shareEl.innerText = formatMoney(val / 2);
         }
       });
 
