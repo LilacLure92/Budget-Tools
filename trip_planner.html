@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Budget Calculator</title>
+<style>
+  :root {
+    --primary: #1a73e8;
+    --success: #137333;
+    --warning: #e37400;
+    --danger: #d93025;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-main: #202124;
+    --text-muted: #5f6368;
+    --border: #dadce0;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  
+  body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; line-height: 1.5; }
+  
+  .budget-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+  
+  .header-section { padding: 24px; background: #fdfdfd; border-bottom: 1px solid var(--border); }
+  .header-section h2 { font-size: 16px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  .input-group { display: flex; flex-direction: column; margin-bottom: 20px; }
+  .input-group label { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+  .input-group input[type="number"] { padding: 12px; font-size: 16px; border: 1px solid var(--border); border-radius: 8px; width: 100%; max-width: 200px; outline: none; transition: border 0.2s; }
+  .input-group input[type="number"]:focus { border-color: var(--primary); }
+  
+  .hero-stats { background: #f4f8fe; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px; border: 1px solid #e8f0fe; }
+  .hero-stats h1 { font-size: 36px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .hero-stats p { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+  
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; text-align: center; margin-bottom: 16px; }
+  .stat-box { background: var(--bg-color); padding: 16px 12px; border-radius: 8px; border: 1px solid var(--border); }
+  .stat-box .val { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .stat-box .lbl { font-size: 12px; color: var(--text-muted); }
+  
+  .sliders-section { padding: 24px; }
+  .sliders-section h3 { font-size: 18px; margin-bottom: 20px; }
+  
+  .category { margin-bottom: 24px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .category-header { padding: 16px; background: #fdfdfd; font-weight: 600; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .category-body { padding: 16px; }
+  
+  .slider-row { margin-bottom: 20px; }
+  .slider-row:last-child { margin-bottom: 0; }
+  .slider-labels { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+  .slider-labels .val { font-weight: 600; }
+  
+  input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #e0e0e0; border-radius: 4px; outline: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  
+  .footer-note { padding: 16px 24px; font-size: 12px; color: var(--text-muted); text-align: center; background: #fdfdfd; border-top: 1px solid var(--border); }
+
+  .text-success { color: var(--success); }
+  .text-danger { color: var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="budget-container">
+  <div class="header-section">
+    <div class="input-group">
+      <label for="targetIncome">What is your target budget for your half?</label>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:18px; font-weight:600; color:var(--text-muted);">$</span>
+        <input type="number" id="targetIncome" value="700" step="50">
+      </div>
+    </div>
+    
+    <div class="hero-stats">
+      <h1 id="balanceAmount">$0</h1>
+      <p>Your 50% Share Balance (Surplus / Deficit)</p>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="val" id="shareAmount">$0</div>
+        <div class="lbl">Your 50% Share</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" id="coverageRate">0%</div>
+        <div class="lbl">Share Coverage Rate</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" id="totalAmount">$0</div>
+        <div class="lbl">Total Trip Combined</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="sliders-section">
+    <h3>Adjust estimated total trip costs</h3>
+    
+    <!-- Lodging Category -->
+    <div class="category">
+      <div class="category-header">
+        <div class="dot" style="background-color: var(--primary);"></div>
+        Airbnb Rental (3 Nights)
+      </div>
+      <div class="category-body">
+        <div class="slider-row">
+          <div class="slider-labels"><span>Entire Home / Condo</span><span class="val" id="val_airbnb">$510</span></div>
+          <input type="range" id="airbnb" min="300" max="1200" step="30" value="510" oninput="update()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-labels"><span>Cleaning & Service Fees</span><span class="val" id="val_cleaning">$140</span></div>
+          <input type="range" id="cleaning" min="50" max="300" step="10" value="140" oninput="update()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-labels"><span>Overnight Parking</span><span class="val" id="val_parking">$90</span></div>
+          <input type="range" id="parking" min="0" max="200" step="10" value="90" oninput="update()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Food Category -->
+    <div class="category">
+      <div class="category-header">
+        <div class="dot" style="background-color: var(--warning);"></div>
+        Dining & NYE Celebrations
+      </div>
+      <div class="category-body">
+        <div class="slider-row">
+          <div class="slider-labels"><span>Grocery / Breakfast Stock</span><span class="val" id="val_grocery">$75</span></div>
+          <input type="range" id="grocery" min="30" max="200" step="15" value="75" oninput="update()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-labels"><span>NYE Special Dinner</span><span class="val" id="val_nyedinner">$240</span></div>
+          <input type="range" id="nyedinner" min="100" max="500" step="20" value="240" oninput="update()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-labels"><span>Lunches & Casual Dining</span><span class="val" id="val_dining">$180</span></div>
+          <input type="range" id="dining" min="80" max="400" step="20" value="180" oninput="update()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Travel Category -->
+    <div class="category">
+      <div class="category-header">
+        <div class="dot" style="background-color: var(--success);"></div>
+        Travel & Shopping
+      </div>
+      <div class="category-body">
+        <div class="slider-row">
+          <div class="slider-labels"><span>Gas & Highway Tolls</span><span class="val" id="val_gas">$90</span></div>
+          <input type="range" id="gas" min="40" max="250" step="10" value="90" oninput="update()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-labels"><span>After-Christmas Shopping</span><span class="val" id="val_shopping">$200</span></div>
+          <input type="range" id="shopping" min="0" max="600" step="50" value="200" oninput="update()">
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="footer-note">
+    *Expenses shown reflect total combined costs. Your 50% split is calculated automatically.
+  </div>
+</div>
+
+<script>
+  // Helper to format currency
+  const formatMoney = (amount) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+  };
+
+  // Main calculation function
+  function update() {
+    // 1. Get Target Income
+    const targetIncome = parseFloat(document.getElementById('targetIncome').value) || 0;
+    
+    // 2. Get all expense values from sliders
+    const ids = ['airbnb', 'cleaning', 'parking', 'grocery', 'nyedinner', 'dining', 'gas', 'shopping'];
+    let totalCombined = 0;
+    
+    ids.forEach(id => {
+      const val = parseFloat(document.getElementById(id).value) || 0;
+      totalCombined += val;
+      // Update slider label text
+      document.getElementById('val_' + id).innerText = formatMoney(val);
+    });
+    
+    // 3. Do the math
+    const myShare = totalCombined / 2;
+    const balance = targetIncome - myShare;
+    const coverage = myShare > 0 ? Math.round((targetIncome / myShare) * 100) : 100;
+    
+    // 4. Update the DOM
+    const balanceEl = document.getElementById('balanceAmount');
+    balanceEl.innerText = (balance > 0 ? '+' : '') + formatMoney(balance);
+    
+    // Colorize hero balance based on surplus/deficit
+    if (balance >= 0) {
+      balanceEl.className = 'text-success';
+    } else {
+      balanceEl.className = 'text-danger';
+    }
+    
+    document.getElementById('shareAmount').innerText = formatMoney(myShare);
+    document.getElementById('totalAmount').innerText = formatMoney(totalCombined);
+    
+    const coverageEl = document.getElementById('coverageRate');
+    coverageEl.innerText = coverage + '%';
+    if(coverage >= 100) {
+      coverageEl.className = 'val text-success';
+    } else {
+      coverageEl.className = 'val text-danger';
+    }
+  }
+
+  // Listen for manual typing in the income field
+  document.getElementById('targetIncome').addEventListener('input', update);
+  
+  // Run once on load to set initial numbers
+  update();
+</script>
+</body>
+</html>
