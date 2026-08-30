@@ -63,9 +63,9 @@
     .delete-btn { background: none; border: none; color: #cc4444; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; }
     .edit-btn { background: none; border: none; color: #528699; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; font-size: 14px; }
     
-    /* Sort Dropdown Controls */
+    /* Filter & Sort Dropdown Controls */
     .sort-container { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #5c3d75; }
-    .sort-container select { width: auto; padding: 3px 6px; font-size: 12px; margin: 0; border: 1px solid #dcd6e3; border-radius: 6px; background: white; color: #2d2338; font-weight: 600; }
+    .sort-container select { max-width: 125px; padding: 3px 6px; font-size: 11px; margin: 0; border: 1px solid #dcd6e3; border-radius: 6px; background: white; color: #2d2338; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}
   </style>
 </head>
 <body>
@@ -136,19 +136,24 @@
     </div>
   </div>
 
-  <!-- 70% Space: Recent Log Area with Sorting -->
+  <!-- 70% Space: Recent Log Area with Filtering & Sorting -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
       <h3 style="margin: 0; font-size: 15px; color: #5c3d75;">Recent Log</h3>
       <div class="sort-container">
-        <label for="sortBy">Sort:</label>
+        <!-- New Filter Dropdown -->
+        <select id="filterCategory" onchange="saveAndRender()">
+          <option value="ALL">All Categories</option>
+          <!-- Categories load dynamically -->
+        </select>
+        
+        <!-- Sort Dropdown -->
         <select id="sortBy" onchange="saveAndRender()">
           <option value="entry">Order Entered</option>
           <option value="dateDesc">Date (Newest)</option>
           <option value="dateAsc">Date (Oldest)</option>
           <option value="amountDesc">Amount (High → Low)</option>
           <option value="amountAsc">Amount (Low → High)</option>
-          <option value="category">Category (A-Z)</option>
         </select>
       </div>
     </div>
@@ -165,13 +170,31 @@
 
     function updateCategoryDropdown() {
       const select = document.getElementById('category');
+      const filterSelect = document.getElementById('filterCategory');
+      const currentFilter = filterSelect ? filterSelect.value : 'ALL';
+      
       select.innerHTML = '';
+      if (filterSelect) {
+        filterSelect.innerHTML = '<option value="ALL">All Categories</option>';
+      }
+
       categories.forEach(cat => {
         const option = document.createElement('option');
         option.value = cat;
         option.textContent = cat;
         select.appendChild(option);
+
+        if (filterSelect) {
+          const fOption = document.createElement('option');
+          fOption.value = cat;
+          fOption.textContent = cat;
+          filterSelect.appendChild(fOption);
+        }
       });
+
+      if (filterSelect && categories.includes(currentFilter)) {
+        filterSelect.value = currentFilter;
+      }
     }
 
     function addCategory() {
@@ -412,38 +435,50 @@
           }
         });
 
-        // Determine sort mode & sort a shallow copy of expenses for list display
-        const sortByEl = document.getElementById('sortBy');
-        const sortBy = sortByEl ? sortByEl.value : 'entry';
-        let sortedExpenses = [...expenses];
-
-        if (sortBy === 'dateDesc') {
-          sortedExpenses.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        } else if (sortBy === 'dateAsc') {
-          sortedExpenses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        } else if (sortBy === 'amountDesc') {
-          sortedExpenses.sort((a, b) => b.amount - a.amount);
-        } else if (sortBy === 'amountAsc') {
-          sortedExpenses.sort((a, b) => a.amount - b.amount);
-        } else if (sortBy === 'category') {
-          sortedExpenses.sort((a, b) => a.category.localeCompare(b.category));
+        // 1. Filter Logic
+        const filterByEl = document.getElementById('filterCategory');
+        const filterBy = filterByEl ? filterByEl.value : 'ALL';
+        let displayExpenses = [...expenses];
+        
+        if (filterBy !== 'ALL') {
+          displayExpenses = displayExpenses.filter(exp => exp.category === filterBy);
         }
 
-        sortedExpenses.forEach(exp => {
-          const amt = exp.amount;
-          const labelHtml = exp.label ? ` <br><span style="color: #887a96; font-size: 11px;">(${exp.label})</span>` : '';
-          
-          const li = document.createElement('li');
-          li.innerHTML = `
-            <span style="flex: 1;"><strong>${exp.dateFormatted}</strong> - ${exp.category}${labelHtml}</span>
-            <span style="display: flex; align-items: center; gap: 4px;">
-              $${amt.toFixed(2)} 
-              <button class="edit-btn" onclick="editExpense(${exp.id})">✎</button>
-              <button class="delete-btn" onclick="deleteExpense(${exp.id})">×</button>
-            </span>
-          `;
-          listEl.appendChild(li);
-        });
+        // 2. Sort Logic
+        const sortByEl = document.getElementById('sortBy');
+        const sortBy = sortByEl ? sortByEl.value : 'entry';
+
+        if (sortBy === 'dateDesc') {
+          displayExpenses.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        } else if (sortBy === 'dateAsc') {
+          displayExpenses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        } else if (sortBy === 'amountDesc') {
+          displayExpenses.sort((a, b) => b.amount - a.amount);
+        } else if (sortBy === 'amountAsc') {
+          displayExpenses.sort((a, b) => a.amount - b.amount);
+        }
+
+        // 3. Render the filtered and sorted list
+        if (displayExpenses.length > 0) {
+          displayExpenses.forEach(exp => {
+            const amt = exp.amount;
+            const labelHtml = exp.label ? ` <br><span style="color: #887a96; font-size: 11px;">(${exp.label})</span>` : '';
+            
+            const li = document.createElement('li');
+            li.innerHTML = `
+              <span style="flex: 1;"><strong>${exp.dateFormatted}</strong> - ${exp.category}${labelHtml}</span>
+              <span style="display: flex; align-items: center; gap: 4px;">
+                $${amt.toFixed(2)} 
+                <button class="edit-btn" onclick="editExpense(${exp.id})">✎</button>
+                <button class="delete-btn" onclick="deleteExpense(${exp.id})">×</button>
+              </span>
+            `;
+            listEl.appendChild(li);
+          });
+        } else {
+          listEl.innerHTML = '<li style="text-align: center; color: #888;">No expenses found for this filter.</li>';
+        }
+
       } else {
         listEl.innerHTML = '<li style="text-align: center; color: #888;">No expenses logged yet.</li>';
       }
