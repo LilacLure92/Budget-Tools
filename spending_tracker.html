@@ -25,6 +25,14 @@
     .total-box {background: #f0ebf5; padding: 10px 6px; border-radius: 8px; text-align: center; }
     .total-box span {display: block; font-size: 10px; color: #665b73; text-transform: uppercase; }
     .total-box strong {font-size: 14px; color: #5c3d75; }
+    
+    /* Scrollable Category Breakdown Container */
+    #categoryBreakdownList {
+      max-height: 150px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
     .cat-row {background: #f9f7fc; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #ece4f2; }
     .cat-header {font-weight: bold; color: #5c3d75; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
     .cat-actions {font-size: 11px; }
@@ -36,7 +44,16 @@
     .cat-stats {display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; text-align: center; font-size: 11px; color: #554863; }
     
     .cat-stats div span {display: block; font-size: 9px; color: #887a96; text-transform: uppercase; }
-    ul {list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+    
+    /* Expanded Recent Log Scrollable Area */
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    
     li {display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
     .delete-btn {background: none; border: none; color: #cc4444; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; }
     .edit-btn {background: none; border: none; color: #528699; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; font-size: 14px; }
@@ -199,7 +216,6 @@
       const exp = expenses.find(e => e.id === id);
       if (!exp) return;
 
-      // 1. Edit Category
       const newCat = prompt(`Edit Category (Current: ${exp.category})\nAvailable: ${categories.join(', ')}`, exp.category);
       if (newCat !== null) {
         const trimmedCat = newCat.trim();
@@ -215,13 +231,11 @@
         }
       }
 
-      // 2. Edit Label
       const newLabel = prompt("Add or edit a label/note for this entry:", exp.label || "");
       if (newLabel !== null) {
         exp.label = newLabel.trim();
       }
 
-      // 3. Edit Date
       const currentD = new Date(exp.timestamp);
       const yyyy = currentD.getFullYear();
       const mm = String(currentD.getMonth() + 1).padStart(2, '0');
@@ -370,7 +384,6 @@
             catTotals[cat].year += amt;
           }
           
-          // Render label text if it exists
           const labelHtml = exp.label ? ` <br><span style="color: #887a96; font-size: 11px;">(${exp.label})</span>` : '';
           
           const li = document.createElement('li');
