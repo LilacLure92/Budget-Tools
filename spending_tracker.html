@@ -7,10 +7,24 @@
   <style>
     body {font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f5f3f7; color: #2d2338; max-width: 500px; margin: 0 auto; padding: 16px; }
     h2 {text-align: center; color: #5c3d75; margin-top: 0; margin-bottom: 12px; font-size: 20px; }
-    .card {background: white; padding: 14px; border-radius: 12px; box-shadow: 0 4px 12px rgba(92, 61, 117, 0.08); margin-bottom: 12px; }
     
-    /* Compact Category Logging Area */
-    .log-card { padding: 10px 14px; margin-bottom: 12px; }
+    /* Universal Resizable Section Cards */
+    .card {
+      background: white; 
+      padding: 14px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 12px rgba(92, 61, 117, 0.08); 
+      margin-bottom: 12px; 
+      resize: vertical; 
+      overflow: auto; 
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      border: 1px solid #ece4f2;
+    }
+    
+    /* Resizable Category Logging Area */
+    .log-card { padding: 10px 14px; min-height: 140px; }
     .log-card label { display: block; margin-bottom: 2px; font-weight: 600; font-size: 12px; }
     .log-card input, .log-card select { width: 100%; padding: 5px 8px; margin-bottom: 6px; border: 1px solid #dcd6e3; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
     .log-card button { background-color: #7b5299; color: white; border: none; padding: 6px 10px; width: 100%; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
@@ -18,29 +32,27 @@
     .log-card .secondary-btn { background-color: #9c7bb8; margin-bottom: 6px; }
     .log-card .secondary-btn:hover { background-color: #7b5299; }
     
-    /* Compact Import/Export Area */
-    .io-card { padding: 8px 12px; margin-bottom: 12px; text-align: center; }
+    /* Resizable Import/Export Area */
+    .io-card { padding: 10px 12px; text-align: center; min-height: 80px; }
     .export-btn { background-color: #528699; color: white; border: none; padding: 6px 10px; width: 100%; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 4px; }
     .export-btn:hover { background-color: #3e6675; }
     .import-btn { background-color: #865299; color: white; border: none; padding: 6px 10px; width: 100%; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 0; }
     .import-btn:hover { background-color: #6a3d78; }
     
-    .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-    .time-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 12px; } 
-    
+    /* Resizable Summary Totals Card */
+    .stats-card { min-height: 110px; padding: 10px; }
+    .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+    .time-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; } 
     .total-box { background: #f0ebf5; padding: 8px 4px; border-radius: 8px; text-align: center; }
     .total-box span { display: block; font-size: 9px; color: #665b73; text-transform: uppercase; }
     .total-box strong { font-size: 13px; color: #5c3d75; }
     
-    /* User-Resizable Category Breakdown Window */
+    /* Resizable Category Breakdown Area */
+    .breakdown-card { height: 180px; min-height: 90px; }
     #categoryBreakdownList {
-      height: 140px;
-      min-height: 80px;
-      max-height: 600px;
-      overflow: auto;
-      resize: vertical;
+      flex: 1;
+      overflow-y: auto;
       padding-right: 4px;
-      border-bottom: 2px dashed #ece4f2;
     }
 
     .cat-row { background: #f9f7fc; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; border: 1px solid #ece4f2; }
@@ -54,17 +66,14 @@
     .cat-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; text-align: center; font-size: 10px; color: #554863; }
     .cat-stats div span { display: block; font-size: 8px; color: #887a96; text-transform: uppercase; }
     
-    /* User-Resizable Recent Log Window */
+    /* Resizable Recent Log Area */
+    .recent-card { height: 360px; min-height: 120px; }
     ul#expenseList {
       list-style: none;
       padding: 0;
       margin: 0;
-      height: 320px;
-      min-height: 100px;
-      max-height: 800px;
-      overflow: auto;
-      resize: vertical;
-      border-bottom: 2px dashed #eee;
+      flex: 1;
+      overflow-y: auto;
     }
     
     li { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
@@ -79,7 +88,7 @@
 <body>
   <h2>Quick Log Tracker</h2>
   
-  <!-- Compact Logging Card -->
+  <!-- Resizable Logging Card -->
   <div class="card log-card">
     <label for="newCategory">Add New Category</label>
     <input type="text" id="newCategory" placeholder="e.g., Household, Personal Care">
@@ -95,49 +104,52 @@
     <button onclick="addExpense()">Add Expense</button>
   </div>
 
-  <!-- Import/Export Card -->
+  <!-- Resizable Import/Export Card -->
   <div class="card io-card">
     <button class="export-btn" onclick="exportBackup()">📥 Export Backup File</button>
     <button class="import-btn" onclick="document.getElementById('importFile').click()">📂 Import Backup File</button>
     <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importBackup(event)">
   </div>
 
-  <div class="time-grid">
-    <div class="total-box">
-      <span>Week</span>
-      <strong id="weekTotal">$0.00</strong>
+  <!-- Resizable Totals & Time Stats Card -->
+  <div class="card stats-card">
+    <div class="time-grid">
+      <div class="total-box">
+        <span>Week</span>
+        <strong id="weekTotal">$0.00</strong>
+      </div>
+      <div class="total-box">
+        <span>Last Wk.</span>
+        <strong id="lastWeekTotal">$0.00</strong>
+      </div>
+      <div class="total-box">
+        <span>Last Mo.</span>
+        <strong id="lastMonthTotal">$0.00</strong>
+      </div>
+      <div class="total-box">
+        <span>This Mo.</span>
+        <strong id="monthTotal">$0.00</strong>
+      </div>
+      <div class="total-box">
+        <span>Year</span>
+        <strong id="yearTotal">$0.00</strong>
+      </div>
     </div>
-    <div class="total-box">
-      <span>Last Wk.</span>
-      <strong id="lastWeekTotal">$0.00</strong>
-    </div>
-    <div class="total-box">
-      <span>Last Mo.</span>
-      <strong id="lastMonthTotal">$0.00</strong>
-    </div>
-    <div class="total-box">
-      <span>This Mo.</span>
-      <strong id="monthTotal">$0.00</strong>
-    </div>
-    <div class="total-box">
-      <span>Year</span>
-      <strong id="yearTotal">$0.00</strong>
-    </div>
-  </div>
 
-  <div class="totals-grid">
-    <div class="total-box">
-      <span>All-Time Total</span>
-      <strong id="grandTotal">$0.00</strong>
-    </div>
-    <div class="total-box">
-      <span>Entries</span>
-      <strong id="entryCount">0</strong>
+    <div class="totals-grid">
+      <div class="total-box">
+        <span>All-Time Total</span>
+        <strong id="grandTotal">$0.00</strong>
+      </div>
+      <div class="total-box">
+        <span>Entries</span>
+        <strong id="entryCount">0</strong>
+      </div>
     </div>
   </div>
 
   <!-- Resizable Category Breakdown Card -->
-  <div class="card">
+  <div class="card breakdown-card">
     <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 15px; color: #5c3d75;">Breakdown by Category</h3>
     <div id="categoryBreakdownList">
       <div style="text-align: center; color: #888; font-size: 13px;">No category data yet.</div>
@@ -145,7 +157,7 @@
   </div>
 
   <!-- Resizable Recent Log Card -->
-  <div class="card">
+  <div class="card recent-card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
       <h3 style="margin: 0; font-size: 15px; color: #5c3d75;">Recent Log</h3>
       <div class="sort-container">
@@ -466,7 +478,7 @@
           displayExpenses.sort((a, b) => a.amount - b.amount);
         }
 
-        // 3. Render list
+        // 3. Render List
         if (displayExpenses.length > 0) {
           displayExpenses.forEach(exp => {
             const amt = exp.amount;
