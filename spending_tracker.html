@@ -62,12 +62,16 @@
     li { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
     .delete-btn { background: none; border: none; color: #cc4444; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; }
     .edit-btn { background: none; border: none; color: #528699; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; font-size: 14px; }
+    
+    /* Sort Dropdown Controls */
+    .sort-container { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #5c3d75; }
+    .sort-container select { width: auto; padding: 3px 6px; font-size: 12px; margin: 0; border: 1px solid #dcd6e3; border-radius: 6px; background: white; color: #2d2338; font-weight: 600; }
   </style>
 </head>
 <body>
   <h2>Quick Log Tracker</h2>
   
-  <!-- Compact Logging Card (50% smaller) -->
+  <!-- Compact Logging Card -->
   <div class="card log-card">
     <label for="newCategory">Add New Category</label>
     <input type="text" id="newCategory" placeholder="e.g., Household, Personal Care">
@@ -83,7 +87,7 @@
     <button onclick="addExpense()">Add Expense</button>
   </div>
 
-  <!-- Import/Export Card (25% smaller) -->
+  <!-- Import/Export Card -->
   <div class="card io-card">
     <button class="export-btn" onclick="exportBackup()">📥 Export Backup File</button>
     <button class="import-btn" onclick="document.getElementById('importFile').click()">📂 Import Backup File</button>
@@ -132,9 +136,22 @@
     </div>
   </div>
 
-  <!-- 70% Space: Recent Log Area -->
+  <!-- 70% Space: Recent Log Area with Sorting -->
   <div class="card">
-    <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 15px; color: #5c3d75;">Recent Log</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <h3 style="margin: 0; font-size: 15px; color: #5c3d75;">Recent Log</h3>
+      <div class="sort-container">
+        <label for="sortBy">Sort:</label>
+        <select id="sortBy" onchange="saveAndRender()">
+          <option value="entry">Order Entered</option>
+          <option value="dateDesc">Date (Newest)</option>
+          <option value="dateAsc">Date (Oldest)</option>
+          <option value="amountDesc">Amount (High → Low)</option>
+          <option value="amountAsc">Amount (Low → High)</option>
+          <option value="category">Category (A-Z)</option>
+        </select>
+      </div>
+    </div>
     <ul id="expenseList">
       <li style="text-align: center; color: #888;">No expenses logged yet.</li>
     </ul>
@@ -393,7 +410,27 @@
             yearTotal += amt;
             catTotals[cat].year += amt;
           }
-          
+        });
+
+        // Determine sort mode & sort a shallow copy of expenses for list display
+        const sortByEl = document.getElementById('sortBy');
+        const sortBy = sortByEl ? sortByEl.value : 'entry';
+        let sortedExpenses = [...expenses];
+
+        if (sortBy === 'dateDesc') {
+          sortedExpenses.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        } else if (sortBy === 'dateAsc') {
+          sortedExpenses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        } else if (sortBy === 'amountDesc') {
+          sortedExpenses.sort((a, b) => b.amount - a.amount);
+        } else if (sortBy === 'amountAsc') {
+          sortedExpenses.sort((a, b) => a.amount - b.amount);
+        } else if (sortBy === 'category') {
+          sortedExpenses.sort((a, b) => a.category.localeCompare(b.category));
+        }
+
+        sortedExpenses.forEach(exp => {
+          const amt = exp.amount;
           const labelHtml = exp.label ? ` <br><span style="color: #887a96; font-size: 11px;">(${exp.label})</span>` : '';
           
           const li = document.createElement('li');
