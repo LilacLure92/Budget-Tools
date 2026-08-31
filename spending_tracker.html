@@ -47,10 +47,11 @@
     .total-box span { display: block; font-size: 9px; color: #665b73; text-transform: uppercase; }
     .total-box strong { font-size: 13px; color: #5c3d75; }
     
-    /* Resizable Category Breakdown Area */
+    /* Resizable Category Breakdown Area (Responsive Content) */
     .breakdown-card { height: 180px; min-height: 90px; }
     #categoryBreakdownList {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
       padding-right: 4px;
     }
@@ -66,13 +67,14 @@
     .cat-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; text-align: center; font-size: 10px; color: #554863; }
     .cat-stats div span { display: block; font-size: 8px; color: #887a96; text-transform: uppercase; }
     
-    /* Resizable Recent Log Area */
+    /* Resizable Recent Log Area (Responsive Content) */
     .recent-card { height: 360px; min-height: 120px; }
     ul#expenseList {
       list-style: none;
       padding: 0;
       margin: 0;
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
     }
     
