@@ -23,13 +23,15 @@
       border: 1px solid #ece4f2;
     }
     
-    /* Resizable Category Logging Area */
-    .log-card { padding: 10px 14px; min-height: 140px; }
-    .log-card label { display: block; margin-bottom: 2px; font-weight: 600; font-size: 12px; }
-    .log-card input, .log-card select { width: 100%; padding: 5px 8px; margin-bottom: 6px; border: 1px solid #dcd6e3; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-    .log-card button { background-color: #7b5299; color: white; border: none; padding: 6px 10px; width: 100%; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }
+    /* Compact, Fitted Logging Card (No Scrolling Needed) */
+    .log-card { padding: 10px 12px; min-height: auto; height: auto; }
+    .input-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+    .input-col { flex: 1; display: flex; flex-direction: column; }
+    .log-card label { display: block; margin-bottom: 2px; font-weight: 600; font-size: 11px; color: #5c3d75; }
+    .log-card input, .log-card select { width: 100%; padding: 5px 8px; margin: 0; border: 1px solid #dcd6e3; border-radius: 6px; font-size: 13px; box-sizing: border-box; }
+    .log-card button { background-color: #7b5299; color: white; border: none; padding: 7px 10px; width: 100%; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; white-space: nowrap; }
     .log-card button:hover { background-color: #633c7d; }
-    .log-card .secondary-btn { background-color: #9c7bb8; margin-bottom: 6px; }
+    .log-card .secondary-btn { background-color: #9c7bb8; margin: 0; }
     .log-card .secondary-btn:hover { background-color: #7b5299; }
     
     /* Resizable Import/Export Area */
@@ -47,7 +49,7 @@
     .total-box span { display: block; font-size: 9px; color: #665b73; text-transform: uppercase; }
     .total-box strong { font-size: 13px; color: #5c3d75; }
     
-    /* Resizable Category Breakdown Area (Responsive Content) */
+    /* Resizable Category Breakdown Area */
     .breakdown-card { height: 180px; min-height: 90px; }
     #categoryBreakdownList {
       flex: 1;
@@ -67,7 +69,7 @@
     .cat-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; text-align: center; font-size: 10px; color: #554863; }
     .cat-stats div span { display: block; font-size: 8px; color: #887a96; text-transform: uppercase; }
     
-    /* Resizable Recent Log Area (Responsive Content) */
+    /* Resizable Recent Log Area */
     .recent-card { height: 360px; min-height: 120px; }
     ul#expenseList {
       list-style: none;
@@ -90,20 +92,27 @@
 <body>
   <h2>Quick Log Tracker</h2>
   
-  <!-- Resizable Logging Card -->
+  <!-- Compact Logging Card (Side-by-side controls) -->
   <div class="card log-card">
     <label for="newCategory">Add New Category</label>
-    <input type="text" id="newCategory" placeholder="e.g., Household, Personal Care">
-    <button class="secondary-btn" onclick="addCategory()">Add Category</button>
+    <div class="input-row">
+      <input type="text" id="newCategory" placeholder="e.g., Household, Personal Care" style="flex: 1;">
+      <button class="secondary-btn" onclick="addCategory()" style="width: auto; padding: 5px 12px;">Add</button>
+    </div>
     
-    <label for="amount">Amount ($)</label>
-    <input type="number" id="amount" step="0.01" placeholder="0.00">
-    
-    <label for="category">Category</label>
-    <select id="category">
-      <!-- Categories load dynamically -->
-    </select>
-    <button onclick="addExpense()">Add Expense</button>
+    <div class="input-row" style="margin-top: 2px;">
+      <div class="input-col" style="flex: 1;">
+        <label for="amount">Amount ($)</label>
+        <input type="number" id="amount" step="0.01" placeholder="0.00">
+      </div>
+      <div class="input-col" style="flex: 1.5;">
+        <label for="category">Category</label>
+        <select id="category">
+          <!-- Categories load dynamically -->
+        </select>
+      </div>
+    </div>
+    <button onclick="addExpense()" style="margin-top: 6px;">Add Expense</button>
   </div>
 
   <!-- Resizable Import/Export Card -->
