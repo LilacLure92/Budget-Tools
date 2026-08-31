@@ -34,11 +34,11 @@
     .log-card .secondary-btn { background-color: #9c7bb8; margin: 0; }
     .log-card .secondary-btn:hover { background-color: #7b5299; }
     
-    /* Resizable Import/Export Area */
-    .io-card { padding: 10px 12px; text-align: center; min-height: 80px; }
-    .export-btn { background-color: #528699; color: white; border: none; padding: 6px 10px; width: 100%; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 4px; }
+    /* Compact, Fitted Import/Export Area (No Scrolling Needed) */
+    .io-card { padding: 8px 10px; min-height: auto; height: auto; text-align: center; }
+    .export-btn { background-color: #528699; color: white; border: none; padding: 7px 8px; flex: 1; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin: 0; white-space: nowrap; }
     .export-btn:hover { background-color: #3e6675; }
-    .import-btn { background-color: #865299; color: white; border: none; padding: 6px 10px; width: 100%; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 0; }
+    .import-btn { background-color: #865299; color: white; border: none; padding: 7px 8px; flex: 1; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin: 0; white-space: nowrap; }
     .import-btn:hover { background-color: #6a3d78; }
     
     /* Resizable Summary Totals Card */
@@ -92,7 +92,7 @@
 <body>
   <h2>Quick Log Tracker</h2>
   
-  <!-- Compact Logging Card (Side-by-side controls) -->
+  <!-- Compact Logging Card -->
   <div class="card log-card">
     <label for="newCategory">Add New Category</label>
     <div class="input-row">
@@ -115,10 +115,12 @@
     <button onclick="addExpense()" style="margin-top: 6px;">Add Expense</button>
   </div>
 
-  <!-- Resizable Import/Export Card -->
+  <!-- Compact Import/Export Card (Side-by-side buttons) -->
   <div class="card io-card">
-    <button class="export-btn" onclick="exportBackup()">📥 Export Backup File</button>
-    <button class="import-btn" onclick="document.getElementById('importFile').click()">📂 Import Backup File</button>
+    <div class="input-row" style="margin: 0;">
+      <button class="export-btn" onclick="exportBackup()">📥 Export Backup</button>
+      <button class="import-btn" onclick="document.getElementById('importFile').click()">📂 Import Backup</button>
+    </div>
     <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importBackup(event)">
   </div>
 
