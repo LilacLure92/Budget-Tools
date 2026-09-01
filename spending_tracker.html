@@ -115,7 +115,7 @@
     <button onclick="addExpense()" style="margin-top: 6px;">Add Expense</button>
   </div>
 
-  <!-- Compact Import/Export Card (Side-by-side buttons) -->
+  <!-- Compact Import/Export Card -->
   <div class="card io-card">
     <div class="input-row" style="margin: 0;">
       <button class="export-btn" onclick="exportBackup()">📥 Export Backup</button>
@@ -128,11 +128,11 @@
   <div class="card stats-card">
     <div class="time-grid">
       <div class="total-box">
-        <span>Week</span>
-        <strong id="weekTotal">$0.00</strong>
+        <span>Since Fri.</span>
+        <strong id="sinceFriTotal">$0.00</strong>
       </div>
       <div class="total-box">
-        <span>Last Wk.</span>
+        <span>Prev Wk.</span>
         <strong id="lastWeekTotal">$0.00</strong>
       </div>
       <div class="total-box">
@@ -377,23 +377,29 @@
       event.target.value = ''; 
     }
 
-    function isSameWeek(date1, date2) {
-      const d1 = new Date(date1);
-      const d2 = new Date(date2);
-      const getThursday = d => {
-        const date = new Date(d);
-        date.setDate(date.getDate() + (4 - (date.getDay() || 7)));
-        return date;
-      };
-      const th1 = getThursday(d1);
-      const th2 = getThursday(d2);
-      return th1.getFullYear() === th2.getFullYear() && th1.getMonth() === th2.getMonth() && Math.abs(th1 - th2) <= 6 * 86400000;
+    // Friday-to-Friday Logic
+    function isSinceLastFriday(dateStr) {
+      const expDate = new Date(dateStr);
+      const now = new Date();
+      let daysSinceFriday = now.getDay() - 5;
+      if (daysSinceFriday < 0) daysSinceFriday += 7;
+      
+      const lastFriday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysSinceFriday);
+      lastFriday.setHours(0, 0, 0, 0);
+      return expDate >= lastFriday;
     }
 
-    function isLastWeek(date1, date2) {
-      const oneWeekAgo = new Date(date2);
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      return isSameWeek(date1, oneWeekAgo);
+    function isPreviousFridayCycle(dateStr) {
+      const expDate = new Date(dateStr);
+      const now = new Date();
+      let daysSinceFriday = now.getDay() - 5;
+      if (daysSinceFriday < 0) daysSinceFriday += 7;
+      
+      const lastFriday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysSinceFriday);
+      lastFriday.setHours(0, 0, 0, 0);
+      
+      const previousFriday = new Date(lastFriday.getFullYear(), lastFriday.getMonth(), lastFriday.getDate() - 7);
+      return expDate >= previousFriday && expDate < lastFriday;
     }
 
     function saveAndRender() {
@@ -402,7 +408,7 @@
       const breakdownEl = document.getElementById('categoryBreakdownList');
       
       const grandTotalEl = document.getElementById('grandTotal');
-      const weekTotalEl = document.getElementById('weekTotal');
+      const sinceFriTotalEl = document.getElementById('sinceFriTotal');
       const lastWeekTotalEl = document.getElementById('lastWeekTotal'); 
       const lastMonthTotalEl = document.getElementById('lastMonthTotal');
       const monthTotalEl = document.getElementById('monthTotal');
@@ -413,7 +419,7 @@
       breakdownEl.innerHTML = '';
       
       let grandTotal = 0;
-      let weekTotal = 0;
+      let sinceFriTotal = 0;
       let lastWeekTotal = 0; 
       let lastMonthTotal = 0;
       let monthTotal = 0;
@@ -432,7 +438,7 @@
       
       let catTotals = {};
       categories.forEach(cat => {
-        catTotals[cat] = { week: 0, lastWeek: 0, lastMonth: 0, thisMonth: 0, year: 0 }; 
+        catTotals[cat] = { sinceFri: 0, lastWeek: 0, lastMonth: 0, thisMonth: 0, year: 0 }; 
       });
       
       if (expenses.length > 0) {
@@ -443,14 +449,14 @@
           
           grandTotal += amt;
           if (!catTotals[cat]) {
-            catTotals[cat] = { week: 0, lastWeek: 0, lastMonth: 0, thisMonth: 0, year: 0 }; 
+            catTotals[cat] = { sinceFri: 0, lastWeek: 0, lastMonth: 0, thisMonth: 0, year: 0 }; 
           }
           
-          if (isSameWeek(expDate, now)) {
-            weekTotal += amt;
-            catTotals[cat].week += amt;
+          if (isSinceLastFriday(exp.timestamp)) {
+            sinceFriTotal += amt;
+            catTotals[cat].sinceFri += amt;
           }
-          if (isLastWeek(expDate, now)) {
+          if (isPreviousFridayCycle(exp.timestamp)) {
             lastWeekTotal += amt;
             catTotals[cat].lastWeek += amt;
           }
@@ -531,8 +537,8 @@
             </span>
           </div>
           <div class="cat-stats">
-            <div><span>Week</span>$${stats.week.toFixed(2)}</div>
-            <div><span>Last Wk.</span>$${stats.lastWeek.toFixed(2)}</div>
+            <div><span>Since Fri.</span>$${stats.sinceFri.toFixed(2)}</div>
+            <div><span>Prev Wk.</span>$${stats.lastWeek.toFixed(2)}</div>
             <div><span>Last Mo.</span>$${stats.lastMonth.toFixed(2)}</div>
             <div><span>This Mo.</span>$${stats.thisMonth.toFixed(2)}</div>
             <div><span>Year</span>$${stats.year.toFixed(2)}</div>
@@ -542,7 +548,7 @@
       });
       
       grandTotalEl.textContent = `$${grandTotal.toFixed(2)}`;
-      weekTotalEl.textContent = `$${weekTotal.toFixed(2)}`;
+      sinceFriTotalEl.textContent = `$${sinceFriTotal.toFixed(2)}`;
       lastWeekTotalEl.textContent = `$${lastWeekTotal.toFixed(2)}`; 
       lastMonthTotalEl.textContent = `$${lastMonthTotal.toFixed(2)}`;
       monthTotalEl.textContent = `$${monthTotal.toFixed(2)}`;
