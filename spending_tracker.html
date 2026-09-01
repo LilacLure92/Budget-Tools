@@ -175,10 +175,12 @@
       <h3 style="margin: 0; font-size: 15px; color: #5c3d75;">Recent Log</h3>
       <div class="sort-container">
         
-        <!-- NEW Time Filter Dropdown -->
+        <!-- Updated Time Filter Dropdown -->
         <select id="filterTime" onchange="saveAndRender()">
           <option value="ALL">All Time</option>
           <option value="sinceFri">Since Last Fri</option>
+          <option value="lastMonth">Since Last Mo.</option>
+          <option value="pastYear">Past Year</option>
         </select>
 
         <!-- Category Filter Dropdown -->
@@ -384,7 +386,7 @@
       event.target.value = ''; 
     }
 
-    // Friday-to-Friday Logic
+    // Date Logic Helpers
     function isSinceLastFriday(dateStr) {
       const expDate = new Date(dateStr);
       const now = new Date();
@@ -407,6 +409,20 @@
       
       const previousFriday = new Date(lastFriday.getFullYear(), lastFriday.getMonth(), lastFriday.getDate() - 7);
       return expDate >= previousFriday && expDate < lastFriday;
+    }
+
+    function isSinceLastMonth(dateStr) {
+      const expDate = new Date(dateStr);
+      const now = new Date();
+      const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      return expDate >= lastMonthStart;
+    }
+
+    function isPastYear(dateStr) {
+      const expDate = new Date(dateStr);
+      const now = new Date();
+      const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+      return expDate >= oneYearAgo;
     }
 
     function saveAndRender() {
@@ -488,6 +504,10 @@
         
         if (filterTime === 'sinceFri') {
           displayExpenses = displayExpenses.filter(exp => isSinceLastFriday(exp.timestamp));
+        } else if (filterTime === 'lastMonth') {
+          displayExpenses = displayExpenses.filter(exp => isSinceLastMonth(exp.timestamp));
+        } else if (filterTime === 'pastYear') {
+          displayExpenses = displayExpenses.filter(exp => isPastYear(exp.timestamp));
         }
 
         // 2. Category Filter Logic
