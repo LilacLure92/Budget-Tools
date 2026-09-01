@@ -85,8 +85,8 @@
     .edit-btn { background: none; border: none; color: #528699; cursor: pointer; font-weight: bold; padding: 0 5px; width: auto; font-size: 14px; }
     
     /* Filter & Sort Dropdown Controls */
-    .sort-container { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #5c3d75; }
-    .sort-container select { max-width: 125px; padding: 3px 6px; font-size: 11px; margin: 0; border: 1px solid #dcd6e3; border-radius: 6px; background: white; color: #2d2338; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}
+    .sort-container { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #5c3d75; flex-wrap: wrap; justify-content: flex-end; }
+    .sort-container select { max-width: 105px; padding: 3px 6px; font-size: 11px; margin: 0; border: 1px solid #dcd6e3; border-radius: 6px; background: white; color: #2d2338; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}
   </style>
 </head>
 <body>
@@ -174,7 +174,14 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
       <h3 style="margin: 0; font-size: 15px; color: #5c3d75;">Recent Log</h3>
       <div class="sort-container">
-        <!-- Filter Dropdown -->
+        
+        <!-- NEW Time Filter Dropdown -->
+        <select id="filterTime" onchange="saveAndRender()">
+          <option value="ALL">All Time</option>
+          <option value="sinceFri">Since Last Fri</option>
+        </select>
+
+        <!-- Category Filter Dropdown -->
         <select id="filterCategory" onchange="saveAndRender()">
           <option value="ALL">All Categories</option>
           <!-- Categories load dynamically -->
@@ -185,8 +192,8 @@
           <option value="entry">Order Entered</option>
           <option value="dateDesc">Date (Newest)</option>
           <option value="dateAsc">Date (Oldest)</option>
-          <option value="amountDesc">Amount (High → Low)</option>
-          <option value="amountAsc">Amount (Low → High)</option>
+          <option value="amountDesc">Amt (High-Low)</option>
+          <option value="amountAsc">Amt (Low-High)</option>
         </select>
       </div>
     </div>
@@ -474,16 +481,24 @@
           }
         });
 
-        // 1. Filter Logic
+        // 1. Time Filter Logic
+        const filterTimeEl = document.getElementById('filterTime');
+        const filterTime = filterTimeEl ? filterTimeEl.value : 'ALL';
+        let displayExpenses = [...expenses];
+        
+        if (filterTime === 'sinceFri') {
+          displayExpenses = displayExpenses.filter(exp => isSinceLastFriday(exp.timestamp));
+        }
+
+        // 2. Category Filter Logic
         const filterByEl = document.getElementById('filterCategory');
         const filterBy = filterByEl ? filterByEl.value : 'ALL';
-        let displayExpenses = [...expenses];
         
         if (filterBy !== 'ALL') {
           displayExpenses = displayExpenses.filter(exp => exp.category === filterBy);
         }
 
-        // 2. Sort Logic
+        // 3. Sort Logic
         const sortByEl = document.getElementById('sortBy');
         const sortBy = sortByEl ? sortByEl.value : 'entry';
 
@@ -497,7 +512,7 @@
           displayExpenses.sort((a, b) => a.amount - b.amount);
         }
 
-        // 3. Render List
+        // 4. Render List
         if (displayExpenses.length > 0) {
           displayExpenses.forEach(exp => {
             const amt = exp.amount;
@@ -515,7 +530,7 @@
             listEl.appendChild(li);
           });
         } else {
-          listEl.innerHTML = '<li style="text-align: center; color: #888;">No expenses found for this filter.</li>';
+          listEl.innerHTML = '<li style="text-align: center; color: #888;">No expenses found for these filters.</li>';
         }
 
       } else {
