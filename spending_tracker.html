@@ -87,6 +87,9 @@
     /* Filter & Sort Dropdown Controls */
     .sort-container { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #5c3d75; flex-wrap: wrap; justify-content: flex-end; }
     .sort-container select { max-width: 105px; padding: 3px 6px; font-size: 11px; margin: 0; border: 1px solid #dcd6e3; border-radius: 6px; background: white; color: #2d2338; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}
+    
+    /* Filtered Sum Display Style */
+    .filtered-sum { font-size: 13px; font-weight: bold; color: #7b5299; margin-left: 4px; }
   </style>
 </head>
 <body>
@@ -169,13 +172,15 @@
     </div>
   </div>
 
-  <!-- Resizable Recent Log Card -->
+  <!-- Resizable Recent Log Card with Live Filtered Total -->
   <div class="card recent-card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-      <h3 style="margin: 0; font-size: 15px; color: #5c3d75;">Recent Log</h3>
+      <div style="display: flex; align-items: baseline;">
+        <h3 style="margin: 0; font-size: 15px; color: #5c3d75;">Recent Log</h3>
+        <span class="filtered-sum" id="filteredTotalDisplay">($0.00)</span>
+      </div>
       <div class="sort-container">
-        
-        <!-- Updated Time Filter Dropdown -->
+        <!-- Time Filter Dropdown -->
         <select id="filterTime" onchange="saveAndRender()">
           <option value="ALL">All Time</option>
           <option value="sinceFri">Since Last Fri</option>
@@ -429,6 +434,7 @@
       localStorage.setItem('quick_expenses', JSON.stringify(expenses));
       const listEl = document.getElementById('expenseList');
       const breakdownEl = document.getElementById('categoryBreakdownList');
+      const filteredTotalDisplayEl = document.getElementById('filteredTotalDisplay');
       
       const grandTotalEl = document.getElementById('grandTotal');
       const sinceFriTotalEl = document.getElementById('sinceFriTotal');
@@ -518,6 +524,12 @@
           displayExpenses = displayExpenses.filter(exp => exp.category === filterBy);
         }
 
+        // Calculate and display active filter sum
+        const filteredSum = displayExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+        if (filteredTotalDisplayEl) {
+          filteredTotalDisplayEl.textContent = `($${filteredSum.toFixed(2)})`;
+        }
+
         // 3. Sort Logic
         const sortByEl = document.getElementById('sortBy');
         const sortBy = sortByEl ? sortByEl.value : 'entry';
@@ -555,6 +567,7 @@
 
       } else {
         listEl.innerHTML = '<li style="text-align: center; color: #888;">No expenses logged yet.</li>';
+        if (filteredTotalDisplayEl) filteredTotalDisplayEl.textContent = '($0.00)';
       }
       
       categories.forEach((cat, index) => {
